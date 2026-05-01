@@ -1,0 +1,61 @@
+# ==========================================
+# JetBrains Rider & IDE-specific files
+# ==========================================
+riderModule.iml
+.idea/
+*.sln.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.rider/
+.vs
+
+# ==========================================
+# Build outputs and compilation artifacts
+# ==========================================
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+[Tt]est[Rr]esults/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# ==========================================
+# NuGet Packages
+# ==========================================
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/[Pp]ackages/repositories.config
+# NuGet v3's project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
+
+# ==========================================
+# OS-generated files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==========================================
+# User-specific files and miscellaneous
+# ==========================================
+*.rsuser
+*.DotSettings.user
+*.resharper.user
+_ReSharper.*/
+*.[Rr]e[Ss]harper
