@@ -5,12 +5,12 @@ public class ParkingBeach
     /// <summary>
     /// The width of the parking beach.
     /// </summary>
-    public int Width { get; }
+    public int Width { get; private set; }
 
     /// <summary>
     /// The height of the parking beach.
     /// </summary>
-    public int Height { get; }
+    public int Height { get; private set; }
 
     private ParkingSlot?[,] _slots;
 
@@ -50,6 +50,8 @@ public class ParkingBeach
         }
 
         _slots = newSlots;
+        Width = width;
+        Height = height;
     }
 
     /// <summary>
