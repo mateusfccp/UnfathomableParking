@@ -5,12 +5,12 @@ public class ParkingBeach
     /// <summary>
     /// The width of the parking beach.
     /// </summary>
-    public int Width { get; private set; }
+    public uint Width { get; private set; }
 
     /// <summary>
     /// The height of the parking beach.
     /// </summary>
-    public int Height { get; private set; }
+    public uint Height { get; private set; }
 
     private ParkingSlot?[,] _slots;
 
@@ -19,15 +19,21 @@ public class ParkingBeach
     /// </summary>
     /// <param name="x">The X position in the parking beach.</param>
     /// <param name="y">The Y position in the parking beach.</param>
-    public ParkingSlot? this[int x, int y] => _slots[x, y];
+    public ParkingSlot? this[uint x, uint y] => _slots[x, y];
 
     /// <summary>
     /// Creates a new parking beach with the given width and height.
     /// </summary>
     /// <param name="width">The width of the parking beach.</param>
     /// <param name="height">The height of the parking beach.</param>
-    public ParkingBeach(int width, int height)
+    public ParkingBeach(uint width, uint height)
     {
+        if (width == 0 || height == 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(width), nameof(height),
+                "The width and height must be greater than 0.");
+        }
+
         Width = width;
         Height = height;
         _slots = new ParkingSlot?[width, height];
@@ -38,7 +44,7 @@ public class ParkingBeach
     /// </summary>
     /// <param name="width">The new width of the parking beach.</param>
     /// <param name="height">The new height of the parking beach.</param>
-    public void Resize(int width, int height)
+    public void Resize(uint width, uint height)
     {
         var newSlots = new ParkingSlot?[width, height];
         for (var x = 0; x < Math.Min(Width, width); x++)
@@ -62,9 +68,9 @@ public class ParkingBeach
     /// <param name="y">The X position of the slot to unpark.</param>
     /// <exception cref="ArgumentOutOfRangeException">The slot does not exist.</exception>
     /// <exception cref="InvalidOperationException">The slot in the position is already occupied.</exception>
-    public void ParkVehicle(Vehicle vehicle, int x, int y)
+    public void ParkVehicle(Vehicle vehicle, uint x, uint y)
     {
-        if (x < 0 || x >= Width || y < 0 || y >= Height)
+        if (x >= Width || y >= Height)
         {
             throw new ArgumentOutOfRangeException(nameof(x), "This slot does not exist.");
         }
@@ -84,9 +90,9 @@ public class ParkingBeach
     /// <param name="y">The Y position of the slot to unpark.</param>
     /// <exception cref="ArgumentOutOfRangeException">The slot does not exist.</exception>
     /// <exception cref="InvalidOperationException">The slot in the position is already unoccupied.</exception>
-    public void UnparkVehicle(int x, int y)
+    public void UnparkVehicle(uint x, uint y)
     {
-        if (x < 0 || x >= Width || y < 0 || y >= Height)
+        if (x >= Width || y >= Height)
         {
             throw new ArgumentOutOfRangeException(nameof(x), "This slot does not exist.");
         }
