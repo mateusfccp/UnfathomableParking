@@ -158,6 +158,13 @@ public class Engine
     public class Canvas
     {
         /// <summary>
+        /// The default style of the engine.
+        /// <br />
+        /// This style is used when drawing to the canvas if no other style is provided.
+        /// </summary>
+        public Style DefaultStyle = new();
+
+        /// <summary>
         /// Creates a new canvas with the given width and height.
         /// </summary>
         /// <param name="width"></param>
@@ -190,25 +197,57 @@ public class Engine
         /// <param name="x">The X position of the content.</param>
         /// <param name="y">The Y position of the content.</param>
         /// <param name="style">An optional style to be used in the content.</param>
-        public void Draw(string content, int x, int y, Style style = new())
+        /// <param name="alignment">The alignment of the content.</param>
+        public void Draw(string content, uint x, uint y, Style? style = null, Alignment alignment = Alignment.Left)
         {
-            var currentX = x;
-            var currentY = y;
+            var effectiveStyle = style ?? DefaultStyle;
+            var lines = content.ReplaceLineEndings().Split(Environment.NewLine);
 
-            for (var i = 0; i < content.Length; i++)
+            foreach (var line in lines)
             {
-                currentX++;
-                if (content[i] == Environment.NewLine[0])
+                var currentX = alignment switch
                 {
-                    currentY++;
-                    currentX = x;
-                    i = i + Environment.NewLine.Length - 1;
-                }
-                else if (currentX >= 0 && currentX < Width && currentY >= 0 && currentY < Height)
+                    Alignment.Center => x - line.Length / 2,
+                    Alignment.Right => x - line.Length,
+                    _ => x
+                };
+
+                var currentY = y++;
+
+                foreach (var c in line)
                 {
-                    Buffer[currentX, currentY] = new Cell(content[i], style);
+                    if (currentX < Width && currentY < Height)
+                    {
+                        Buffer[currentX, currentY] = new Cell(c, effectiveStyle);
+                    }
+
+                    currentX = currentX + 1;
                 }
             }
+        }
+
+        public void DrawBox(uint x, uint y, uint width, uint height, Style style = new(),
+            BoxStyle? boxStyle = null)
+        {
+            var effectiveBoxStyle = boxStyle ?? BoxStyle.Default;
+
+            Draw(effectiveBoxStyle.TopLeftCorner.ToString(), x, y, style);
+            Draw(effectiveBoxStyle.TopRightCorner.ToString(), x + width - 1, y, style);
+
+            for (var i = 1; i < height - 1; i++)
+            {
+                Draw(effectiveBoxStyle.VerticalLine.ToString(), x, (uint)(y + i), style);
+                Draw(effectiveBoxStyle.VerticalLine.ToString(), x + width - 1, (uint)(y + i), style);
+            }
+
+            for (var i = 1; i < width - 1; i++)
+            {
+                Draw(effectiveBoxStyle.HorizontalLine.ToString(), (uint)(x + i), y, style);
+                Draw(effectiveBoxStyle.HorizontalLine.ToString(), (uint)(x + i), y + height - 1, style);
+            }
+
+            Draw(effectiveBoxStyle.BottomLeftCorner.ToString(), x, y + height - 1, style);
+            Draw(effectiveBoxStyle.BottomRightCorner.ToString(), x + width - 1, y + height - 1, style);
         }
 
         /// <summary>
