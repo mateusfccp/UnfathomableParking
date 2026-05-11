@@ -16,8 +16,8 @@ public interface IScene
     /// <summary>
     /// Called when a key is pressed.
     /// </summary>
-    /// <param name="key">The key pressed.</param>
-    void OnKeyPressed(ConsoleKey key);
+    /// <param name="keyInfo">The key pressed.</param>
+    void OnKeyPressed(ConsoleKeyInfo keyInfo);
 
     /// <summary>
     /// Called when the scene is disposed.

@@ -85,9 +85,9 @@ public class Engine
         {
             PollConsoleSize();
             var canvas = new Canvas(_width, _height);
-            var key = ProcessInput();
+            var keyInfo = ProcessInput();
 
-            _scene.OnKeyPressed(key);
+            _scene.OnKeyPressed(keyInfo);
             _scene.Draw(canvas);
 
             _nextBuffer = canvas.Buffer;
@@ -106,15 +106,15 @@ public class Engine
         }
     }
 
-    private static ConsoleKey ProcessInput()
+    private static ConsoleKeyInfo ProcessInput()
     {
         if (Console.KeyAvailable)
         {
-            return Console.ReadKey(intercept: true).Key;
+            return Console.ReadKey(intercept: true);
         }
         else
         {
-            return ConsoleKey.None;
+            return default;
         }
     }
 

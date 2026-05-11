@@ -174,9 +174,9 @@ public class ParkingBeachScene(ParkingBeach parkingBeach) : IScene
         }
     }
 
-    public void OnKeyPressed(ConsoleKey key)
+    public void OnKeyPressed(ConsoleKeyInfo keyInfo)
     {
-        switch (key)
+        switch (keyInfo.Key)
         {
             case ConsoleKey.N:
                 parkingBeach.Resize(parkingBeach.Width, parkingBeach.Height + 1);
