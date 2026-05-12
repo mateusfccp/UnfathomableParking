@@ -24,15 +24,16 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
 
         // Calculations
         const uint chunkSize = 8;
+        const int roadWidth = 3;
         var irregularBlocks = parkingBeach.Width % chunkSize;
         var leftBlock = irregularBlocks / 2;
 
         var verticalRoadsCount = 1 + parkingBeach.Width / chunkSize;
-        var width = 1 + parkingBeach.Width * 2 + verticalRoadsCount * 3;
+        var width = 1 + parkingBeach.Width * 2 + verticalRoadsCount * (1 + (uint)roadWidth);
 
         var horizontalRoadsCount = 1 + (parkingBeach.Height - 1) / 2;
-        var internalHeight = 2 + (parkingBeach.Height - 1) + (parkingBeach.Height - 1) / 2;
-        var height = internalHeight * 2 + (internalHeight - 1) / 3 + 2;
+        var boundariesCount = 1 + (parkingBeach.Height + 1) / 2;
+        var height = parkingBeach.Height * 2 + horizontalRoadsCount * (uint)roadWidth + boundariesCount;
 
         var position = new Point((int)(canvas.Width / 2 - width / 2), (int)(canvas.Height / 2 - height / 2));
 
@@ -65,7 +66,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 var isRegularArea = verticalArea > 1;
 
                 var isSlot = isLeftBlockArea || isRegularArea;
-                var isAfterRoad = verticalArea == 1;
+                var isAfterRoad = !isLeftBlockArea && verticalArea == 1;
                 var isBeforeRoad = x > 0 && verticalArea == 0;
                 var isCorner = x == 0 && y == 0 || x == 0 && y == height - 1 || x == width - 1 && y == 0 ||
                                x == width - 1 && y == height - 1;
@@ -133,13 +134,14 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                         break;
                 }
 
-                if (verticalArea == 0) x = x + 1;
+                if (verticalArea == 0) x = x + (roadWidth - 1);
                 x = x + 2;
                 currentColumn = currentColumn + 1;
             }
 
             if (horizontalArea == 0) y = y - 1;
-            y = y + 2;
+            if (horizontalArea == 2) y = y + roadWidth;
+            else y = y + 2;
             currentRow = currentRow + 1;
 
             if (horizontalArea == 1)
@@ -187,7 +189,8 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 activeSlotY = simulationY;
             }
 
-            simulationY = simulationY + 2;
+            if (simulationHorizontalArea == 2) simulationY = simulationY + roadWidth;
+            else simulationY = simulationY + 2;
             if (simulationHorizontalArea == 1) simulationSlotY = simulationSlotY + 1;
             simulationRow = simulationRow + 1;
         }
@@ -208,7 +211,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 simulationSlotX = simulationSlotX + 1;
             }
 
-            if (simulationVerticalArea == 0) simulationX = simulationX + 1;
+            if (simulationVerticalArea == 0) simulationX = simulationX + (roadWidth - 1);
             simulationX = simulationX + 2;
             simulationColumn = simulationColumn + 1;
         }
