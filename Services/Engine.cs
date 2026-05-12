@@ -148,6 +148,7 @@ public class Engine
         if (framePayload.Length > 0)
         {
             framePayload.Append(Ansi.Reset);
+            framePayload.Append(Ansi.MoveTo(0, _height - 1));
             Console.Write(framePayload.ToString());
         }
     }
@@ -226,28 +227,29 @@ public class Engine
             }
         }
 
-        public void DrawBox(uint x, uint y, uint width, uint height, Style style = new(),
+        public void DrawBox(uint x, uint y, uint width, uint height, Style? style = null,
             BoxStyle? boxStyle = null)
         {
+            var effectiveStyle = style ?? new Style();
             var effectiveBoxStyle = boxStyle ?? BoxStyle.Default;
 
-            Draw(effectiveBoxStyle.TopLeftCorner.ToString(), x, y, style);
-            Draw(effectiveBoxStyle.TopRightCorner.ToString(), x + width - 1, y, style);
+            Draw(effectiveBoxStyle.TopLeftCorner.ToString(), x, y, effectiveStyle);
+            Draw(effectiveBoxStyle.TopRightCorner.ToString(), x + width - 1, y, effectiveStyle);
 
             for (var i = 1; i < height - 1; i++)
             {
-                Draw(effectiveBoxStyle.VerticalLine.ToString(), x, (uint)(y + i), style);
-                Draw(effectiveBoxStyle.VerticalLine.ToString(), x + width - 1, (uint)(y + i), style);
+                Draw(effectiveBoxStyle.VerticalLineLeft.ToString(), x, (uint)(y + i), effectiveStyle);
+                Draw(effectiveBoxStyle.VerticalLineRight.ToString(), x + width - 1, (uint)(y + i), effectiveStyle);
             }
 
             for (var i = 1; i < width - 1; i++)
             {
-                Draw(effectiveBoxStyle.HorizontalLine.ToString(), (uint)(x + i), y, style);
-                Draw(effectiveBoxStyle.HorizontalLine.ToString(), (uint)(x + i), y + height - 1, style);
+                Draw(effectiveBoxStyle.HorizontalLineTop.ToString(), (uint)(x + i), y, effectiveStyle);
+                Draw(effectiveBoxStyle.HorizontalLineBottom.ToString(), (uint)(x + i), y + height - 1, effectiveStyle);
             }
 
-            Draw(effectiveBoxStyle.BottomLeftCorner.ToString(), x, y + height - 1, style);
-            Draw(effectiveBoxStyle.BottomRightCorner.ToString(), x + width - 1, y + height - 1, style);
+            Draw(effectiveBoxStyle.BottomLeftCorner.ToString(), x, y + height - 1, effectiveStyle);
+            Draw(effectiveBoxStyle.BottomRightCorner.ToString(), x + width - 1, y + height - 1, effectiveStyle);
         }
 
         /// <summary>

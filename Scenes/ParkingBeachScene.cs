@@ -12,9 +12,9 @@ namespace UnfathomableParking.Scenes;
 /// The user can navigate the parking beach using the arrow keys and select a vehicle to 
 /// </summary>
 /// <param name="parkingBeach"></param>
-public class ParkingBeachScene(ParkingBeach parkingBeach) : IScene
+public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint cursorY = 0) : IScene
 {
-    private Point CursorPosition { get; set; }
+    private Point CursorPosition { get; set; } = new((int)cursorX, (int)cursorY);
 
     private ParkingSlot? SelectedSlot => parkingBeach[(uint)CursorPosition.X, (uint)CursorPosition.Y];
 
@@ -206,6 +206,23 @@ public class ParkingBeachScene(ParkingBeach parkingBeach) : IScene
                 var x2 = (CursorPosition.X + 1) % (int)parkingBeach.Width;
                 CursorPosition = CursorPosition with { X = x2 };
                 break;
+            case ConsoleKey.Enter:
+                SelectSlot();
+                break;
+        }
+    }
+
+    private void SelectSlot()
+    {
+        if (SelectedSlot is { } slot)
+        {
+            parkingBeach.UnparkVehicle((uint)CursorPosition.X, (uint)CursorPosition.Y);
+        }
+        else
+        {
+            Engine.Instance?.UpdateScene(
+                new ParkVehicleScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+            );
         }
     }
 

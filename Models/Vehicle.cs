@@ -21,7 +21,7 @@ public sealed class Vehicle
     /// </summary>
     public string LicensePlate { get; }
 
-    private const string LicensePlatePattern = @"^[A-Z]{3}[0-9]{3}$";
+    private const string LicensePlatePattern = "^[A-Z]{3}[0-9]{3}$";
 
     public Vehicle(VehicleBrand brand, string model, string licensePlate)
     {
@@ -29,11 +29,21 @@ public sealed class Vehicle
         Model = model;
         LicensePlate = licensePlate;
 
-        if (!Regex.IsMatch(licensePlate, LicensePlatePattern))
+        if (!IsLicensePlateValid(licensePlate))
         {
             throw new ArgumentException(
-                "Invalid license plate format. Lincense plate should follow the pattern AAA000");
+                "Invalid license plate format. License plate should follow the pattern AAA000");
         }
+    }
+
+    /// <summary>
+    /// Validate whether the given license plate is valid.
+    /// </summary>
+    /// <param name="licensePlate">The license plate to be validated.</param>
+    /// <returns>Whether the given license plate is valid.</returns>
+    public static bool IsLicensePlateValid(string licensePlate)
+    {
+        return Regex.IsMatch(licensePlate, LicensePlatePattern);
     }
 
     public override bool Equals(object? obj)
