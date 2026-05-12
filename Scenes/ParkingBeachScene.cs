@@ -162,15 +162,22 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         // Infos
         if (SelectedSlot is { } slot)
         {
-            canvas.Draw($"Brand: {slot.Vehicle.Brand}", (uint)position.X + 1, (uint)position.Y - 3);
-            canvas.Draw($"Model: {slot.Vehicle.Model}", (uint)position.X + 1, (uint)position.Y - 2);
-            canvas.Draw($"License Plate: {slot.Vehicle.LicensePlate}", (uint)position.X + 1,
-                (uint)position.Y - 1);
+            var carDescription = $"{slot.Vehicle.Brand} {slot.Vehicle.Model}";
+            var licensePlate = $"{slot.Vehicle.LicensePlate[..3]}-{slot.Vehicle.LicensePlate[3..]}";
+            canvas.Draw(carDescription, (uint)position.X + 1, (uint)position.Y - 2);
+            canvas.Draw(licensePlate, (uint)position.X + 1, (uint)position.Y - 1);
+
+            var parkingDate = slot.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
+            canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 1);
         }
         else
         {
-            canvas.Draw("No vehicle selected.", (uint)position.X + 1, (uint)position.Y - 3,
-                new Style(decoration: Decoration.Faint));
+            canvas.Draw(
+                "No vehicle selected.",
+                (uint)position.X + 1,
+                (uint)position.Y - 2,
+                new Style(decoration: Decoration.Faint)
+            );
         }
     }
 
@@ -216,7 +223,25 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
     {
         if (SelectedSlot is { } slot)
         {
-            parkingBeach.UnparkVehicle((uint)CursorPosition.X, (uint)CursorPosition.Y);
+            var licensePlate = $"{slot.Vehicle.LicensePlate[..3]}-{slot.Vehicle.LicensePlate[3..]}";
+            Engine.Instance?.UpdateScene(
+                new ConfirmationScene(
+                    title: $"Unpark vehicle {licensePlate}?",
+                    onConfirm: () =>
+                    {
+                        parkingBeach.UnparkVehicle((uint)CursorPosition.X, (uint)CursorPosition.Y);
+                        Engine.Instance.UpdateScene(
+                            new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                        );
+                    },
+                    onCancel: () =>
+                    {
+                        Engine.Instance.UpdateScene(
+                            new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                        );
+                    }
+                )
+            );
         }
         else
         {

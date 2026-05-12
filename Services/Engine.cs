@@ -87,7 +87,11 @@ public class Engine
             var canvas = new Canvas(_width, _height);
             var keyInfo = ProcessInput();
 
-            _scene.OnKeyPressed(keyInfo);
+            if (keyInfo is not null)
+            {
+                _scene.OnKeyPressed(keyInfo.Value);
+            }
+
             _scene.Draw(canvas);
 
             _nextBuffer = canvas.Buffer;
@@ -106,16 +110,14 @@ public class Engine
         }
     }
 
-    private static ConsoleKeyInfo ProcessInput()
+    private static ConsoleKeyInfo? ProcessInput()
     {
         if (Console.KeyAvailable)
         {
             return Console.ReadKey(intercept: true);
         }
-        else
-        {
-            return default;
-        }
+
+        return null;
     }
 
     private void DrawBuffer()

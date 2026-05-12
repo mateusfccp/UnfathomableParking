@@ -1,4 +1,5 @@
 using System.Drawing;
+using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
 using UnfathomableParking.Services;
@@ -11,6 +12,7 @@ namespace UnfathomableParking.Scenes;
 /// <typeparam name="T">The type of enum to display.</typeparam>
 public class EnumSelectionScene<T> : IScene where T : struct, Enum
 {
+    private readonly string? _title;
     private static readonly T[] Options = Enum.GetValues<T>();
     private readonly uint _maximumLength;
     private uint _selectedIndex;
@@ -23,9 +25,15 @@ public class EnumSelectionScene<T> : IScene where T : struct, Enum
     /// <param name="initialSelectedIndex">The initial index of the selected option.</param>
     /// <param name="formatter">A custom formatter for enum options. Defaults to ToString() if null.</param>
     /// <param name="onSelect">A callback that is called when an option is selected. Defaults to a no-op if null.</param>
-    public EnumSelectionScene(uint initialSelectedIndex = 0, Func<T, string>? formatter = null,
-        Action<T>? onSelect = null)
+    /// <param name="title">An optional title for the selection scene.</param>
+    public EnumSelectionScene(
+        uint initialSelectedIndex = 0,
+        Func<T, string>? formatter = null,
+        Action<T>? onSelect = null,
+        string? title = null
+    )
     {
+        _title = title;
         _maximumLength = (uint)Options.Select(option => option.ToString().Length).Max();
         _selectedIndex = initialSelectedIndex;
         _formatter = formatter ?? _formatter;
@@ -49,6 +57,17 @@ public class EnumSelectionScene<T> : IScene where T : struct, Enum
             var isSelected = i == _selectedIndex;
             canvas.Draw(_formatter(option), originX + 2, originY + i + 1,
                 isSelected ? new Style(foregroundColor: Color.DodgerBlue) : new Style());
+        }
+
+        if (_title is { } title)
+        {
+            canvas.Draw(
+                title,
+                originX + width / 2,
+                originY - 2,
+                new Style(decoration: Decoration.Bold),
+                Alignment.Center
+            );
         }
     }
 
