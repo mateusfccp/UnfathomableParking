@@ -11,9 +11,9 @@ internal sealed class NoScene : IScene
     {
     }
 
-    public void OnKeyPressed(ConsoleKey key)
+    public void OnKeyPressed(ConsoleKeyInfo keyInfo)
     {
-        if (key != ConsoleKey.None)
+        if (keyInfo.Key != ConsoleKey.None)
         {
             Engine.Instance?.Stop();
         }
