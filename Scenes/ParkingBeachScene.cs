@@ -42,6 +42,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         var currentRow = 0;
         var maximumRows = 1 + horizontalRoadsCount + parkingBeach.Height + horizontalRoadsCount;
         var endsWithRoad = maximumRows % 2 == 0;
+        var maximumColumns = 1 + verticalRoadsCount + parkingBeach.Width;
 
         var y = 0;
 
@@ -55,7 +56,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
 
             var currentColumn = 0;
             var x = 0;
-            var maximumColumns = 1 + verticalRoadsCount + parkingBeach.Width;
 
             while (currentColumn < maximumColumns)
             {
@@ -109,11 +109,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                         canvas.Draw("│\n│", (uint)(position.X + x), (uint)(position.Y + y));
                         if (verticalArea > 0)
                         {
-                            if (CursorPosition.X == parkingSlotX && CursorPosition.Y == parkingSlotY)
-                            {
-                                canvas.DefaultStyle = new Style(backgroundColor: Color.White);
-                            }
-
                             if (x != width - 1 && parkingBeach[parkingSlotX, parkingSlotY] is { } currentSlot)
                             {
                                 canvas.Draw(
@@ -130,11 +125,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                                     (uint)(position.X + x + 1),
                                     (uint)(position.Y + y)
                                 );
-                            }
-
-                            if (CursorPosition.X == parkingSlotX && CursorPosition.Y == parkingSlotY)
-                            {
-                                canvas.DefaultStyle = new();
                             }
 
                             parkingSlotX = parkingSlotX + 1;
@@ -177,6 +167,74 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 (uint)position.X + 1,
                 (uint)position.Y - 2,
                 new Style(decoration: Decoration.Faint)
+            );
+        }
+
+        // Post-processing: Highlight row and column
+        var activeSlotX = -1;
+        var activeSlotY = -1;
+        var simulationRow = 0;
+        var simulationY = 0;
+        var simulationSlotY = 0;
+
+        while (simulationRow < maximumRows)
+        {
+            var simulationHorizontalArea = simulationY == height - 1 ? 0 : Math.Abs((simulationRow + 2) % 4 - 2);
+            if (simulationHorizontalArea == 0) simulationY = simulationY - 1;
+
+            if (simulationHorizontalArea == 1 && simulationSlotY == CursorPosition.Y)
+            {
+                activeSlotY = simulationY;
+            }
+
+            simulationY = simulationY + 2;
+            if (simulationHorizontalArea == 1) simulationSlotY = simulationSlotY + 1;
+            simulationRow = simulationRow + 1;
+        }
+
+        var simulationColumn = 0;
+        var simulationX = 0;
+        var simulationSlotX = 0;
+        while (simulationColumn < maximumColumns)
+        {
+            var simulationVerticalArea = Math.Abs((int)(simulationColumn - leftBlock)) % (chunkSize + 1);
+            if (simulationVerticalArea > 0)
+            {
+                if (simulationSlotX == CursorPosition.X)
+                {
+                    activeSlotX = simulationX + 1;
+                }
+
+                simulationSlotX = simulationSlotX + 1;
+            }
+
+            if (simulationVerticalArea == 0) simulationX = simulationX + 1;
+            simulationX = simulationX + 2;
+            simulationColumn = simulationColumn + 1;
+        }
+
+        var cursorColor = Color.FromArgb(76, 76, 76);
+
+        // Column highlight
+        if (activeSlotX != -1)
+        {
+            canvas.SetBackground((uint)(position.X + activeSlotX), (uint)position.Y, 1, height, cursorColor);
+        }
+
+        // Row highlight
+        if (activeSlotY != -1)
+        {
+            canvas.SetBackground((uint)position.X, (uint)(position.Y + activeSlotY), width, 2, cursorColor);
+        }
+
+        // Active cell highlight (2x1)
+        if (activeSlotX != -1 && activeSlotY != -1)
+        {
+            canvas.SetBackground(
+                (uint)(position.X + activeSlotX),
+                (uint)(position.Y + activeSlotY),
+                1, 2,
+                Color.FromArgb(140, 140, 140)
             );
         }
     }
