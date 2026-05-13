@@ -33,7 +33,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
 
         var horizontalRoadsCount = 1 + (parkingBeach.Height - 1) / 2;
         var boundariesCount = 1 + (parkingBeach.Height + 1) / 2;
-        var height = parkingBeach.Height * 2 + horizontalRoadsCount * (uint)roadWidth + boundariesCount;
+        var height = parkingBeach.Height * 2 + horizontalRoadsCount * roadWidth + boundariesCount;
 
         var position = new Point((int)(canvas.Width / 2 - width / 2), (int)(canvas.Height / 2 - height / 2));
 
