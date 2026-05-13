@@ -61,6 +61,27 @@ public class ParkingBeach
     }
 
     /// <summary>
+    /// Gets whether the given license plate is parked in the parking beach.
+    /// </summary>
+    /// <param name="licensePlate">The license plate to check for.</param>
+    /// <returns>True if the license plate is parked, false otherwise.</returns>
+    public bool IsParked(string licensePlate)
+    {
+        for (var x = 0; x < Width; x++)
+        {
+            for (var y = 0; y < Height; y++)
+            {
+                if (_slots[x, y]?.Vehicle.LicensePlate == licensePlate)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Park the given vehicle at the given coordinates.
     /// </summary>
     /// <param name="vehicle"></param>

@@ -100,7 +100,7 @@ public class ParkVehicleScene : IScene
         {
             canvas.Draw(
                 errorMessage,
-                (uint)(originX + errorMessage.Length / 2),
+                (uint)(originX + width / 2),
                 originY + height + 1,
                 new Style(Color.Crimson),
                 Alignment.Center
@@ -178,6 +178,12 @@ public class ParkVehicleScene : IScene
         if (!_isFormValid)
         {
             _errorMessage = "Please fill in all fields with valid values.";
+            return;
+        }
+
+        if (_parkingBeach.IsParked(LicensePlateNormalized))
+        {
+            _errorMessage = "Vehicle with this license plate is already parked.";
             return;
         }
 
