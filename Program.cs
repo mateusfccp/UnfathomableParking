@@ -1,21 +1,6 @@
-﻿using UnfathomableParking.Interfaces;
+﻿using UnfathomableParking.Scenes;
 using UnfathomableParking.Services;
 
-var scene = new NoScene();
+var scene = new MainMenuScene();
 var engine = new Engine(scene);
 engine.Start();
-
-internal sealed class NoScene : IScene
-{
-    public void Draw(Engine.Canvas canvas)
-    {
-    }
-
-    public void OnKeyPressed(ConsoleKeyInfo keyInfo)
-    {
-        if (keyInfo.Key != ConsoleKey.None)
-        {
-            Engine.Instance?.Stop();
-        }
-    }
-}
