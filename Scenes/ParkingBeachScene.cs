@@ -53,7 +53,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         while (currentRow < maximumRows)
         {
             var horizontalArea = y == height - 1 ? 0 : int.Abs((currentRow + 2) % 4 - 2);
-            // canvas.Draw($"{horizontalArea}", position.X - 2, position.Y + y);
 
             var currentColumn = 0;
             var x = 0;
@@ -70,8 +69,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 var isBeforeRoad = x > 0 && verticalArea == 0;
                 var isCorner = x == 0 && y == 0 || x == 0 && y == height - 1 || x == width - 1 && y == 0 ||
                                x == width - 1 && y == height - 1;
-
-                // canvas.Draw($"{verticalArea}", position.X + x, (int)(position.Y + height + 1));
 
                 switch (horizontalArea)
                 {
@@ -246,18 +243,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
     {
         switch (keyInfo.Key)
         {
-            case ConsoleKey.N:
-                parkingBeach.Resize(parkingBeach.Width, parkingBeach.Height + 1);
-                break;
-            case ConsoleKey.P:
-                parkingBeach.Resize(parkingBeach.Width, parkingBeach.Height - 1);
-                break;
-            case ConsoleKey.F:
-                parkingBeach.Resize(parkingBeach.Width + 1, parkingBeach.Height);
-                break;
-            case ConsoleKey.B:
-                parkingBeach.Resize(parkingBeach.Width - 1, parkingBeach.Height);
-                break;
             case ConsoleKey.UpArrow:
                 var y = (CursorPosition.Y - 1 + (int)parkingBeach.Height) % (int)parkingBeach.Height;
                 CursorPosition = CursorPosition with { Y = y };
