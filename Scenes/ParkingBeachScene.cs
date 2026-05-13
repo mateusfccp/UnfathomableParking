@@ -262,6 +262,10 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             case ConsoleKey.Enter:
                 SelectSlot();
                 break;
+            case ConsoleKey.Escape:
+                break;
+
+
         }
     }
 

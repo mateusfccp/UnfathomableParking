@@ -19,7 +19,7 @@ public class ParkingBeachManager
     /// </summary>
     /// <param name="width">The width of the new parking beach.</param>
     /// <param name="height">The height of the new parking beach.</param>
-    void AddParkingBeach(uint width, uint height)
+    public void AddParkingBeach(uint width, uint height)
     {
         var parkingBeach = new ParkingBeach(width, height);
         _parkingBeaches.Add(parkingBeach);
@@ -31,7 +31,7 @@ public class ParkingBeachManager
     /// <param name="index">The index of the parking beach.</param>
     /// <param name="width">The new width of the parking beach.</param>
     /// <param name="height">The new height of the parking beach.</param>
-    void ResizeParkingBeach(int index, uint width, uint height)
+    public void ResizeParkingBeach(int index, uint width, uint height)
     {
         _parkingBeaches[index].Resize(width, height);
     }
@@ -40,7 +40,7 @@ public class ParkingBeachManager
     /// Remove the parking beach at the given index.
     /// </summary>
     /// <param name="index">The index of the parking beach to remove.</param>
-    void RemoveParkingBeach(int index)
+    public void RemoveParkingBeach(int index)
     {
         _parkingBeaches.RemoveAt(index);
     }
