@@ -51,7 +51,7 @@ public class ParkingBeach
     /// <summary>
     /// The revenue per hour of the parking Beach
     /// </summary>
-    private decimal RevenuePerHour { get; set; }
+    public decimal RevenuePerHour { get; private set; }
 
     private ParkingSlot?[,] _slots;
 
@@ -168,13 +168,10 @@ public class ParkingBeach
         var currentSlot = _slots[x, y];
         if (currentSlot != null)
         {
-            TimeSpan timeParked = DateTime.Now - currentSlot.Value.ParkedAt;
-            decimal chargedHours = (decimal)Math.Ceiling(timeParked.TotalHours);
-            TotalRevenue = TotalRevenue + (chargedHours * RevenuePerHour);
+            TotalRevenue = TotalRevenue + currentSlot.Value.ComputeCurrentValue(RevenuePerHour);
 
             _slots[x, y] = null;
         }
         else throw new InvalidOperationException("This slot is not occupied.");
     }
-
 }

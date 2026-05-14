@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Text;
 using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
@@ -155,9 +156,12 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             var licensePlate = $"{slot.Vehicle.LicensePlate[..3]}-{slot.Vehicle.LicensePlate[3..]}";
             canvas.Draw(carDescription, (uint)position.X + 1, (uint)position.Y - 2);
             canvas.Draw(licensePlate, (uint)position.X + 1, (uint)position.Y - 1);
-
+            var currentValue = slot.ComputeCurrentValue(parkingBeach.RevenuePerHour);
+            canvas.Draw("To pay: ", (uint)position.X, (uint)position.Y + height + 1);
+            canvas.Draw($"${currentValue:F2}", (uint)(position.X + "To pay: ".Length), (uint)position.Y + height + 1, new Style(Color.Green));
             var parkingDate = slot.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
             canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 2);
+
         }
         else
         {
@@ -170,9 +174,9 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         }
 
         canvas.Draw(
-            "Generar Informe (R)", 
-            (uint)position.X, 
-            (uint)(position.Y + height),
+            "Export Report (R)",
+            (uint)position.X,
+            (uint)position.Y + height,
             new Style(decoration: Decoration.Bold)
         );
 
@@ -336,19 +340,39 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
     private void ExportReport()
     {
         string fileName = $"Parking_Beach_report {DateTime.Now:yyyyMMdd_HHmmss}.txt";
-        string report =$@"
-        Ingreso total: ${parkingBeach.TotalRevenue}.
-        Espacios ocupados: {parkingBeach.OccupiedSlots}/{parkingBeach.TotalSlots}
-         ";
-        File.WriteAllText(fileName, report);
+        StringBuilder report = new StringBuilder();
+        report.AppendLine("========*Parking Beach Name*========");
+        report.AppendLine($"Total Revenue: ${parkingBeach.TotalRevenue:F2}.");
+        report.AppendLine($"Occupied Spaces: { parkingBeach.OccupiedSlots}/{ parkingBeach.TotalSlots}.");
+        report.AppendLine("Vehicles:");
+        decimal revenueToPay = 0m;
+        for(int x=0; x < parkingBeach.Width; x++)
+        {
+            for(int y=0; y < parkingBeach.Height; y++)
+            {
+                var currentSlot = parkingBeach[(uint)x,(uint)y];
+                if(currentSlot != null)
+                {
+                    var currentVehicle = currentSlot.Value.Vehicle;
+                    var vehicleDescription = $"{currentVehicle.Brand} {currentVehicle.Model} ({currentVehicle.LicensePlate})";
+                    var parkedAt = currentSlot.Value.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
+                    var toPay = currentSlot.Value.ComputeCurrentValue(parkingBeach.RevenuePerHour);
+                    report.AppendLine($"- {vehicleDescription} -> Parked at {parkedAt} | To pay: {toPay:F2}");
+                    revenueToPay += toPay;
+                }
+            }
+        }
+        report.AppendLine($"Total Revenue to pay: ${revenueToPay:F2}");
+        
+        File.WriteAllText(fileName, report.ToString());
 
         Engine.Instance?.UpdateScene(
             new ConfirmationScene(
-                title: $"Reporte generado con éxito como {fileName}, te gusta?",
+                title: $"Your report has been successfully exported as {fileName}\ndo you like it?",
                 onConfirm: () =>
                 {
                     Engine.Instance.UpdateScene(
-                        new ParkingBeachScene(parkingBeach,(uint)CursorPosition.X, (uint)CursorPosition.Y)
+                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
                     );
                 },
                 onCancel: () =>
