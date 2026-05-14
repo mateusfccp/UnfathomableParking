@@ -69,18 +69,15 @@ public class ParkingBeach
     /// <param name="height">The height of the parking beach.</param>
     public ParkingBeach(uint width, uint height, decimal revenuePerHour)
     {
-        if (width == 0 || height == 0 || revenuePerHour <= 0)
+        if (width == 0 || height == 0)
         {
-            if (revenuePerHour <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(revenuePerHour),
-                "The revenue per hour cannot be 0 or a negative numbre");
-            }
-            else
-            {
                 throw new ArgumentOutOfRangeException(nameof(width), nameof(height),
                     "The width and height must be greater than 0.");
-            }
+        }
+        if (revenuePerHour <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(revenuePerHour),
+                "The revenue per hour cannot be 0 or a negative numbre");
         }
 
         Width = width;
