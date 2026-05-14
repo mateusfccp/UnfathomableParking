@@ -77,7 +77,7 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
         int sliderHeadIndex = 0;
         if (totalItems > visibleItems)
         {
-            // Ts is dark magic
+            // Ts is dark magic <- nvm i understand it now
             int maxHeadIndex = totalItems - visibleItems;
             int scrollableSpace = barHeight - sliderSize;
             double progress = (double)_headIndex / maxHeadIndex;
@@ -134,7 +134,7 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
                 if (_parkingBeaches != null && _parkingBeaches.Count != 0 && SelectedBeach != null) Engine.Instance?.UpdateScene(new ParkingBeachScene(SelectedBeach, beachManager, _headIndex, _selectedFieldIndex));
                 break;
             case ConsoleKey.S:
-                // TODO: Logica de sorteo
+                // TODO: Logica de sorteo (voy a hacer un merge sort personalizado mergeSort(List<parkingBeach>, sortingState))
                 break;
 
             // ACA TENES QUE HACER TU PARTE JOAQUIN
