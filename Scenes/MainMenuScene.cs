@@ -40,7 +40,7 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
         // Main Box
         canvas.DrawBox(originX - 2, originY, (uint)width, height);
 
-        // Parking lot list visual
+        // Parking lot list visual - TODO: Display name, revenue and free spots
         if (_parkingBeaches.Count >= 4)
         {
             _visualParkingBeaches = _parkingBeaches[_headIndex..(_headIndex + 4)];
@@ -53,7 +53,7 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
         else // La lista tiene menos que 4 elementos
         {
             _visualParkingBeaches = _parkingBeaches;
-            for (int i = 0; i < _visualParkingBeaches.Count; i++) // Hacer lista de los que entran (son 4)
+            for (int i = 0; i < _visualParkingBeaches.Count; i++) // Hacer lista completa
             {
                 canvas.DrawBox(originX - 1, (uint)(originY + 1 + i * 5), (uint)width - 2, 5, _selectedFieldIndex == i ? selectedStyle : defaultStyle);
                 canvas.Draw($"{_visualParkingBeaches[i].Width.ToString()}×{_visualParkingBeaches[i].Height.ToString()} parking slots", originX, (uint)(originY + 1 + i * 5) + 2);
@@ -71,7 +71,7 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
 
         // Create Button
         canvas.DrawBox(originX - 2, originY + height, (uint)(width / 4), 3);
-        canvas.Draw("Create (C)", originX - 2 + 1, originY + height + 1);
+        canvas.Draw("Create (C)", originX - 3, originY + height + 1);
 
         // Update Button
         canvas.DrawBox(originX - 2 + (uint)(width / 4) + 1, originY + height, (uint)(width / 4), 3);
