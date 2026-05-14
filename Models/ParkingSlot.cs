@@ -5,7 +5,7 @@ namespace UnfathomableParking.Models;
 /// <br />
 /// A parking slot can be occupied by a vehicle and registers the time it was parked and unparked.
 /// </summary>
-public struct ParkingSlot
+public readonly struct ParkingSlot
 {
     /// <summary>
     /// The vehicle that is parked in the slot.
@@ -22,7 +22,6 @@ public struct ParkingSlot
     /// </summary>
     /// <param name="vehicle">The vehicle that is going to park.</param>
     /// <param name="parkedAt">The time the slot was parked.</param>
-    
     public ParkingSlot(Vehicle vehicle, DateTime parkedAt)
     {
         Vehicle = vehicle;
@@ -32,13 +31,14 @@ public struct ParkingSlot
     /// <summary>
     /// Calculate the actual cost for the vehicle in the parking slot.
     /// </summary>
-    /// <param name="CostPerHour"></param> The revenue per hour of the parking beach
+    /// <param name="costPerHour"></param> The revenue per hour of the parking beach
     /// <returns></returns> The current value for the vehicle in the slot
-    public decimal ComputeCurrentValue(decimal CostPerHour)
+    public decimal ComputeCurrentValue(decimal costPerHour)
     {
-        TimeSpan timeParked = DateTime.Now - ParkedAt;
-        decimal hours = (decimal)Math.Ceiling(timeParked.TotalHours);
-        decimal currentValue = hours * CostPerHour;
+        var timeParked = DateTime.Now - ParkedAt;
+        var hours = (decimal)Math.Ceiling(timeParked.TotalHours);
+        var currentValue = hours * costPerHour;
+
         return currentValue;
     }
 }

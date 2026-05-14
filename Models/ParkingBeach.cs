@@ -35,9 +35,11 @@ public class ParkingBeach
                     }
                 }
             }
+
             return counter;
         }
     }
+
     /// <summary>
     /// The total of free slots in the parking beach.
     /// </summary>
@@ -67,17 +69,19 @@ public class ParkingBeach
     /// </summary>
     /// <param name="width">The width of the parking beach.</param>
     /// <param name="height">The height of the parking beach.</param>
+    /// <param name="revenuePerHour">The revenue per hour of the parking beach.</param>
     public ParkingBeach(uint width, uint height, decimal revenuePerHour)
     {
         if (width == 0 || height == 0)
         {
-                throw new ArgumentOutOfRangeException(nameof(width), nameof(height),
-                    "The width and height must be greater than 0.");
+            throw new ArgumentOutOfRangeException(nameof(width), nameof(height),
+                "The width and height must be greater than 0.");
         }
+
         if (revenuePerHour <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(revenuePerHour),
-                "The revenue per hour cannot be 0 or a negative numbre");
+                "The revenue per hour cannot be 0 or a negative number.");
         }
 
         Width = width;

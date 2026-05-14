@@ -75,34 +75,34 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 {
                     // Horizontal line (0)
                     case 0 when !isCorner:
+                    {
+                        if (y == 0)
                         {
-                            if (y == 0)
-                            {
-                                canvas.Draw("┬", (uint)(position.X + x), (uint)(position.Y + y));
-                            }
-                            else if (y == height - 1)
-                            {
-                                var character = endsWithRoad ? "─" : "┴";
-
-                                canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
-                            }
-                            else if (isAfterRoad && x != width - 1)
-                            {
-                                canvas.Draw("├─", (uint)(position.X + x), (uint)(position.Y + y));
-                            }
-                            else if (isSlot && x != width - 1)
-                            {
-                                var character = x == 0 ? "├─" : "┼─";
-
-                                canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
-                            }
-                            else if (isBeforeRoad || (x == width - 1 && verticalArea != 1))
-                            {
-                                canvas.Draw("┤", (uint)(position.X + x), (uint)(position.Y + y));
-                            }
-
-                            break;
+                            canvas.Draw("┬", (uint)(position.X + x), (uint)(position.Y + y));
                         }
+                        else if (y == height - 1)
+                        {
+                            var character = endsWithRoad ? "─" : "┴";
+
+                            canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
+                        }
+                        else if (isAfterRoad && x != width - 1)
+                        {
+                            canvas.Draw("├─", (uint)(position.X + x), (uint)(position.Y + y));
+                        }
+                        else if (isSlot && x != width - 1)
+                        {
+                            var character = x == 0 ? "├─" : "┼─";
+
+                            canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
+                        }
+                        else if (isBeforeRoad || (x == width - 1 && verticalArea != 1))
+                        {
+                            canvas.Draw("┤", (uint)(position.X + x), (uint)(position.Y + y));
+                        }
+
+                        break;
+                    }
                     // Slots (1)
                     case 1 when x < width - 1:
                         canvas.Draw("│\n│", (uint)(position.X + x), (uint)(position.Y + y));
@@ -158,10 +158,10 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             canvas.Draw(licensePlate, (uint)position.X + 1, (uint)position.Y - 1);
             var currentValue = slot.ComputeCurrentValue(parkingBeach.RevenuePerHour);
             canvas.Draw("To pay: ", (uint)position.X, (uint)position.Y + height + 1);
-            canvas.Draw($"${currentValue:F2}", (uint)(position.X + "To pay: ".Length), (uint)position.Y + height + 1, new Style(Color.Green));
+            canvas.Draw($"${currentValue:F2}", (uint)(position.X + "To pay: ".Length), (uint)position.Y + height + 1,
+                new Style(Color.Green));
             var parkingDate = slot.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
             canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 2);
-
         }
         else
         {
@@ -273,7 +273,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             case ConsoleKey.Enter:
                 SelectSlot();
                 break;
-
             case ConsoleKey.R:
                 ExportReport();
                 break;
@@ -339,22 +338,23 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
 
     private void ExportReport()
     {
-        string fileName = $"Parking_Beach_report {DateTime.Now:yyyyMMdd_HHmmss}.txt";
-        StringBuilder report = new StringBuilder();
+        var fileName = $"Parking_Beach_report {DateTime.Now:yyyyMMdd_HHmmss}.txt";
+        var report = new StringBuilder();
         report.AppendLine("========*Parking Beach Name*========");
         report.AppendLine($"Total Revenue: ${parkingBeach.TotalRevenue:F2}.");
-        report.AppendLine($"Occupied Spaces: { parkingBeach.OccupiedSlots}/{ parkingBeach.TotalSlots}.");
+        report.AppendLine($"Occupied Spaces: {parkingBeach.OccupiedSlots}/{parkingBeach.TotalSlots}.");
         report.AppendLine("Vehicles:");
-        decimal revenueToPay = 0m;
-        for(int x=0; x < parkingBeach.Width; x++)
+        var revenueToPay = 0m;
+        for (var x = 0; x < parkingBeach.Width; x++)
         {
-            for(int y=0; y < parkingBeach.Height; y++)
+            for (var y = 0; y < parkingBeach.Height; y++)
             {
-                var currentSlot = parkingBeach[(uint)x,(uint)y];
-                if(currentSlot != null)
+                var currentSlot = parkingBeach[(uint)x, (uint)y];
+                if (currentSlot != null)
                 {
                     var currentVehicle = currentSlot.Value.Vehicle;
-                    var vehicleDescription = $"{currentVehicle.Brand} {currentVehicle.Model} ({currentVehicle.LicensePlate})";
+                    var vehicleDescription =
+                        $"{currentVehicle.Brand} {currentVehicle.Model} ({currentVehicle.LicensePlate})";
                     var parkedAt = currentSlot.Value.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
                     var toPay = currentSlot.Value.ComputeCurrentValue(parkingBeach.RevenuePerHour);
                     report.AppendLine($"- {vehicleDescription} -> Parked at {parkedAt} | To pay: {toPay:F2}");
@@ -362,8 +362,9 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 }
             }
         }
+
         report.AppendLine($"Total Revenue to pay: ${revenueToPay:F2}");
-        
+
         File.WriteAllText(fileName, report.ToString());
 
         Engine.Instance?.UpdateScene(
@@ -384,5 +385,4 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             )
         );
     }
-
 }
