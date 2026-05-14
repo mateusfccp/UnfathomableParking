@@ -21,23 +21,26 @@ public class ParkingBeach
     /// The total of occupied slots in the parking beach.
     /// </summary>
     public uint OccupiedSlots
-{
-    get
     {
-        uint counter = 0;
-        for (int x = 0; x < Width; x++)
+        get
         {
-            for (int y = 0; y < Height; y++)
+            uint counter = 0;
+            for (int x = 0; x < Width; x++)
             {
-                if (_slots[x, y] != null)
+                for (int y = 0; y < Height; y++)
+                {
+                    if (_slots[x, y] != null)
                     {
-                      counter = counter + 1;  
-                    } 
+                        counter = counter + 1;
+                    }
+                }
             }
+            return counter;
         }
-        return counter;
     }
-}
+    /// <summary>
+    /// The total of free slots in the parking beach.
+    /// </summary>
     public uint FreeSlots => TotalSlots - OccupiedSlots;
 
     /// <summary>
@@ -75,8 +78,8 @@ public class ParkingBeach
             }
             else
             {
-            throw new ArgumentOutOfRangeException(nameof(width), nameof(height),
-                "The width and height must be greater than 0.");
+                throw new ArgumentOutOfRangeException(nameof(width), nameof(height),
+                    "The width and height must be greater than 0.");
             }
         }
 
@@ -164,15 +167,15 @@ public class ParkingBeach
         {
             throw new ArgumentOutOfRangeException(nameof(x), "This slot does not exist.");
         }
-        
-        if (_slots[x, y] != null)
-        {
-        var currentSlot = _slots[x,y].Value;
-        TimeSpan timeParked = DateTime.Now - currentSlot.ParkedAt;
-        decimal chargedHours = (decimal) Math.Ceiling(timeParked.TotalHours);
-        TotalRevenue = TotalRevenue + (chargedHours * RevenuePerHour);
 
-        _slots[x, y] = null;
+        var currentSlot = _slots[x, y];
+        if (currentSlot != null)
+        {
+            TimeSpan timeParked = DateTime.Now - currentSlot.Value.ParkedAt;
+            decimal chargedHours = (decimal)Math.Ceiling(timeParked.TotalHours);
+            TotalRevenue = TotalRevenue + (chargedHours * RevenuePerHour);
+
+            _slots[x, y] = null;
         }
         else throw new InvalidOperationException("This slot is not occupied.");
     }

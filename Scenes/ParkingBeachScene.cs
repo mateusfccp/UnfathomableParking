@@ -74,34 +74,34 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 {
                     // Horizontal line (0)
                     case 0 when !isCorner:
-                    {
-                        if (y == 0)
                         {
-                            canvas.Draw("┬", (uint)(position.X + x), (uint)(position.Y + y));
-                        }
-                        else if (y == height - 1)
-                        {
-                            var character = endsWithRoad ? "─" : "┴";
+                            if (y == 0)
+                            {
+                                canvas.Draw("┬", (uint)(position.X + x), (uint)(position.Y + y));
+                            }
+                            else if (y == height - 1)
+                            {
+                                var character = endsWithRoad ? "─" : "┴";
 
-                            canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
-                        }
-                        else if (isAfterRoad && x != width - 1)
-                        {
-                            canvas.Draw("├─", (uint)(position.X + x), (uint)(position.Y + y));
-                        }
-                        else if (isSlot && x != width - 1)
-                        {
-                            var character = x == 0 ? "├─" : "┼─";
+                                canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
+                            }
+                            else if (isAfterRoad && x != width - 1)
+                            {
+                                canvas.Draw("├─", (uint)(position.X + x), (uint)(position.Y + y));
+                            }
+                            else if (isSlot && x != width - 1)
+                            {
+                                var character = x == 0 ? "├─" : "┼─";
 
-                            canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
-                        }
-                        else if (isBeforeRoad || (x == width - 1 && verticalArea != 1))
-                        {
-                            canvas.Draw("┤", (uint)(position.X + x), (uint)(position.Y + y));
-                        }
+                                canvas.Draw(character, (uint)(position.X + x), (uint)(position.Y + y));
+                            }
+                            else if (isBeforeRoad || (x == width - 1 && verticalArea != 1))
+                            {
+                                canvas.Draw("┤", (uint)(position.X + x), (uint)(position.Y + y));
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                     // Slots (1)
                     case 1 when x < width - 1:
                         canvas.Draw("│\n│", (uint)(position.X + x), (uint)(position.Y + y));
@@ -157,7 +157,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             canvas.Draw(licensePlate, (uint)position.X + 1, (uint)position.Y - 1);
 
             var parkingDate = slot.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
-            canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 1);
+            canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 2);
         }
         else
         {
@@ -168,6 +168,13 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 new Style(decoration: Decoration.Faint)
             );
         }
+
+        canvas.Draw(
+            "Generar Informe (R)", 
+            (uint)position.X, 
+            (uint)(position.Y + height),
+            new Style(decoration: Decoration.Bold)
+        );
 
         // Post-processing: Highlight row and column
         var activeSlotX = -1;
@@ -325,15 +332,33 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
 
         return colors[index];
     }
-    
+
     private void ExportReport()
     {
-        //TODO
-        string report= $@"
+        string fileName = $"Parking_Beach_report {DateTime.Now:yyyyMMdd_HHmmss}.txt";
+        string report =$@"
         Ingreso total: ${parkingBeach.TotalRevenue}.
         Espacios ocupados: {parkingBeach.OccupiedSlots}/{parkingBeach.TotalSlots}
          ";
-        File.WriteAllText($"Parking_Beach_report{DateTime.Now:yyyyMMdd_HHmmss}.txt",report);
+        File.WriteAllText(fileName, report);
+
+        Engine.Instance?.UpdateScene(
+            new ConfirmationScene(
+                title: $"Reporte generado con éxito como {fileName}, te gusta?",
+                onConfirm: () =>
+                {
+                    Engine.Instance.UpdateScene(
+                        new ParkingBeachScene(parkingBeach,(uint)CursorPosition.X, (uint)CursorPosition.Y)
+                    );
+                },
+                onCancel: () =>
+                {
+                    Engine.Instance.UpdateScene(
+                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                    );
+                }
+            )
+        );
     }
-    
+
 }

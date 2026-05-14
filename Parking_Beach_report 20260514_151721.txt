@@ -1,0 +1,4 @@
+
+        Ingreso total: $1000.
+        Espacios ocupados: 1/40
+         
