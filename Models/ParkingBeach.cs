@@ -12,6 +12,49 @@ public class ParkingBeach
     /// </summary>
     public uint Height { get; private set; }
 
+    /// <summary>
+    /// The total of slots in the parking beach.
+    /// </summary>
+    public uint TotalSlots => Width * Height;
+
+    /// <summary>
+    /// The total of occupied slots in the parking beach.
+    /// </summary>
+    public uint OccupiedSlots
+    {
+        get
+        {
+            uint counter = 0;
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    if (_slots[x, y] != null)
+                    {
+                        counter = counter + 1;
+                    }
+                }
+            }
+
+            return counter;
+        }
+    }
+
+    /// <summary>
+    /// The total of free slots in the parking beach.
+    /// </summary>
+    public uint FreeSlots => TotalSlots - OccupiedSlots;
+
+    /// <summary>
+    /// The total current revenue of the parking beach.
+    /// </summary>
+    public decimal TotalRevenue { get; private set; }
+
+    /// <summary>
+    /// The revenue per hour of the parking Beach
+    /// </summary>
+    public decimal RevenuePerHour { get; private set; }
+
     private ParkingSlot?[,] _slots;
 
     /// <summary>
@@ -26,7 +69,8 @@ public class ParkingBeach
     /// </summary>
     /// <param name="width">The width of the parking beach.</param>
     /// <param name="height">The height of the parking beach.</param>
-    public ParkingBeach(uint width, uint height)
+    /// <param name="revenuePerHour">The revenue per hour of the parking beach.</param>
+    public ParkingBeach(uint width, uint height, decimal revenuePerHour)
     {
         if (width == 0 || height == 0)
         {
@@ -34,8 +78,15 @@ public class ParkingBeach
                 "The width and height must be greater than 0.");
         }
 
+        if (revenuePerHour <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(revenuePerHour),
+                "The revenue per hour cannot be 0 or a negative number.");
+        }
+
         Width = width;
         Height = height;
+        RevenuePerHour = revenuePerHour;
         _slots = new ParkingSlot?[width, height];
     }
 
@@ -118,13 +169,13 @@ public class ParkingBeach
             throw new ArgumentOutOfRangeException(nameof(x), "This slot does not exist.");
         }
 
-        if (_slots[x, y] == null)
+        var currentSlot = _slots[x, y];
+        if (currentSlot != null)
         {
-            throw new InvalidOperationException("This slot is not occupied.");
+            TotalRevenue = TotalRevenue + currentSlot.Value.ComputeCurrentValue(RevenuePerHour);
+
+            _slots[x, y] = null;
         }
-
-        // TODO: store unparked time into the history
-
-        _slots[x, y] = null;
+        else throw new InvalidOperationException("This slot is not occupied.");
     }
 }
