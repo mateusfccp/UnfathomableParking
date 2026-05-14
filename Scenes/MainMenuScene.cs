@@ -13,8 +13,6 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
     private SortingState _sortingState = SortingState.capacity;
     private List<ParkingBeach> _parkingBeaches => beachManager.ParkingBeaches;
     private List<ParkingBeach>? _visualParkingBeaches;
-
-    private int _selectedBeach = 0;
     public ParkingBeach? SelectedBeach => _visualParkingBeaches?[_selectedFieldIndex];
 
     public void Draw(Engine.Canvas canvas)
@@ -69,6 +67,8 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
             else canvas.Draw("█", originX + (uint)width, originY + (uint)i, new Style(Color.White, decoration: Decoration.Bold));
         }
 
+        // TODO: Ordenar hardcodeo -> poner un error cuando la pantalla sea muy chica
+
         // Create Button
         canvas.DrawBox(originX - 2, originY + height, (uint)(width / 4), 3);
         canvas.Draw("Create (C)", originX - 2 + 1, originY + height + 1);
@@ -84,9 +84,6 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
         // Sort Button
         canvas.DrawBox(originX - 2 + 3 * ((uint)(width / 4)) + 3, originY + height, (uint)(width / 4), 3);
         canvas.Draw("Sort (S)", originX - 2 + 3 * ((uint)(width / 4)) + 5, originY + height + 1);
-
-        // Description -> we'll see if I do it or not
-
     }
 
     public void OnKeyPressed(ConsoleKeyInfo keyInfo)
@@ -107,9 +104,20 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
                 if (_selectedFieldIndex == -1 && !(_headIndex == 0)) _headIndex--;
                 break;
             case ConsoleKey.Enter:
-                _selectedBeach = _selectedFieldIndex + _headIndex;
                 if (_parkingBeaches != null && _parkingBeaches.Count != 0 && SelectedBeach != null) Engine.Instance?.UpdateScene(new ParkingBeachScene(SelectedBeach, beachManager, _headIndex, _selectedFieldIndex));
                 break;
+            case ConsoleKey.S:
+                // TODO: Logica de sorteo
+                break;
+
+            // ACA TENES QUE HACER TU PARTE JOAQUIN
+            case ConsoleKey.C:
+                break;
+            case ConsoleKey.E:
+                break;
+            case ConsoleKey.D:
+                break;
+            // Yo recomiendo que hagas una variable Scene? newScene = TuScene y despues haces el update(newScene)
 
         }
 
