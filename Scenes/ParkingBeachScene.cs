@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Text;
 using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
@@ -155,9 +156,12 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
             var licensePlate = $"{slot.Vehicle.LicensePlate[..3]}-{slot.Vehicle.LicensePlate[3..]}";
             canvas.Draw(carDescription, (uint)position.X + 1, (uint)position.Y - 2);
             canvas.Draw(licensePlate, (uint)position.X + 1, (uint)position.Y - 1);
-
+            var currentValue = slot.ComputeCurrentValue(parkingBeach.RevenuePerHour);
+            canvas.Draw("To pay: ", (uint)position.X, (uint)position.Y + height + 1);
+            canvas.Draw($"${currentValue:F2}", (uint)(position.X + "To pay: ".Length), (uint)position.Y + height + 1,
+                new Style(Color.Green));
             var parkingDate = slot.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
-            canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 1);
+            canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 2);
         }
         else
         {
@@ -168,6 +172,13 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
                 new Style(decoration: Decoration.Faint)
             );
         }
+
+        canvas.Draw(
+            "Export Report (R)",
+            (uint)position.X,
+            (uint)position.Y + height,
+            new Style(decoration: Decoration.Bold)
+        );
 
         // Post-processing: Highlight row and column
         var activeSlotX = -1;
@@ -262,11 +273,12 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
             case ConsoleKey.Enter:
                 SelectSlot();
                 break;
+            case ConsoleKey.R:
+                ExportReport();
+                break;
             case ConsoleKey.Escape:
                 Engine.Instance?.UpdateScene(new MainMenuScene(beachManager, headIndex, selectedFieldIndex));
                 break;
-
-
         }
     }
 
@@ -325,5 +337,55 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
         var index = (int)(hash % (uint)colors.Count);
 
         return colors[index];
+    }
+
+    private void ExportReport()
+    {
+        var fileName = $"Parking_Beach_report {DateTime.Now:yyyyMMdd_HHmmss}.txt";
+        var report = new StringBuilder();
+        report.AppendLine("========*Parking Beach Name*========");
+        report.AppendLine($"Total Revenue: ${parkingBeach.TotalRevenue:F2}.");
+        report.AppendLine($"Occupied Spaces: {parkingBeach.OccupiedSlots}/{parkingBeach.TotalSlots}.");
+        report.AppendLine("Vehicles:");
+        var revenueToPay = 0m;
+        for (var x = 0; x < parkingBeach.Width; x++)
+        {
+            for (var y = 0; y < parkingBeach.Height; y++)
+            {
+                var currentSlot = parkingBeach[(uint)x, (uint)y];
+                if (currentSlot != null)
+                {
+                    var currentVehicle = currentSlot.Value.Vehicle;
+                    var vehicleDescription =
+                        $"{currentVehicle.Brand} {currentVehicle.Model} ({currentVehicle.LicensePlate})";
+                    var parkedAt = currentSlot.Value.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
+                    var toPay = currentSlot.Value.ComputeCurrentValue(parkingBeach.RevenuePerHour);
+                    report.AppendLine($"- {vehicleDescription} -> Parked at {parkedAt} | To pay: {toPay:F2}");
+                    revenueToPay += toPay;
+                }
+            }
+        }
+
+        report.AppendLine($"Total Revenue to pay: ${revenueToPay:F2}");
+
+        File.WriteAllText(fileName, report.ToString());
+
+        Engine.Instance?.UpdateScene(
+            new ConfirmationScene(
+                title: $"Your report has been successfully exported as {fileName}\ndo you like it?",
+                onConfirm: () =>
+                {
+                    Engine.Instance.UpdateScene(
+                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                    );
+                },
+                onCancel: () =>
+                {
+                    Engine.Instance.UpdateScene(
+                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                    );
+                }
+            )
+        );
     }
 }
