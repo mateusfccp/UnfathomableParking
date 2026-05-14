@@ -18,9 +18,8 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
     public void Draw(Engine.Canvas canvas)
     {
         canvas.Clear();
-        const uint maximumWidth = 51;
+        const int width = 51;
         const int height = 22;
-        var width = Math.Min(maximumWidth, canvas.Width);
         var originX = (uint)(canvas.Width / 2 - width / 2);
         var originY = (uint)(canvas.Height / 2 - height / 2);
 
@@ -60,18 +59,46 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
             }
         }
 
-        // Pseudo slider -> TODO: slider visual logic
-        for (int i = 0; i < height + 3; i++)
+        // Pseudo slider (gracias gemini)
+        int barHeight = height + 3;
+        int totalItems = _parkingBeaches.Count;
+        int visibleItems = 4; // cantidad de elementos que entran en la caja
+        int sliderSize;
+        if (totalItems <= visibleItems)
         {
-            if (_headIndex != i) canvas.Draw("█", originX + (uint)width, originY + (uint)i, new Style(Color.DimGray));
-            else canvas.Draw("█", originX + (uint)width, originY + (uint)i, new Style(Color.White, decoration: Decoration.Bold));
+            sliderSize = barHeight;
+        }
+        else
+        {
+            var percentage = (double)visibleItems / totalItems;
+            sliderSize = Math.Max(1, (int)Math.Round(percentage * barHeight));
         }
 
-        // TODO: Ordenar hardcodeo -> poner un error cuando la pantalla sea muy chica
+        int sliderHeadIndex = 0;
+        if (totalItems > visibleItems)
+        {
+            // Ts is dark magic
+            int maxHeadIndex = totalItems - visibleItems;
+            int scrollableSpace = barHeight - sliderSize;
+            double progress = (double)_headIndex / maxHeadIndex;
+            sliderHeadIndex = (int)Math.Round(progress * scrollableSpace);
+        }
+        // Draw grey part
+        for (int i = 0; i < barHeight; i++)
+        {
+            canvas.Draw("█", originX + (uint)width, originY + (uint)i, new Style(Color.DimGray));
+        }
+        // Draw slider on top
+        for (int i = 0; i < sliderSize; i++)
+        {
+            canvas.Draw("█", originX + (uint)width, originY + (uint)(i + sliderHeadIndex), new Style(Color.White, decoration: Decoration.Bold));
+        }
+
+
 
         // Create Button
         canvas.DrawBox(originX - 2, originY + height, (uint)(width / 4), 3);
-        canvas.Draw("Create (C)", originX - 3, originY + height + 1);
+        canvas.Draw("Create (C)", originX - 1, originY + height + 1);
 
         // Update Button
         canvas.DrawBox(originX - 2 + (uint)(width / 4) + 1, originY + height, (uint)(width / 4), 3);
@@ -87,8 +114,8 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
     }
 
     public void OnKeyPressed(ConsoleKeyInfo keyInfo)
-    {
-        // Clamps
+    { 
+        // Head Index clamp
         if (_parkingBeaches.Count >= 4) _headIndex = Math.Clamp(_headIndex, 0, _parkingBeaches.Count - 4);
         else _headIndex = 0;
 
@@ -121,6 +148,7 @@ public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int 
 
         }
 
+        // Selected Field Clamp
         if (_parkingBeaches != null &&  _parkingBeaches.Count >= 4) _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, 3);
         else if (_parkingBeaches != null && _parkingBeaches.Count != 0) _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, _parkingBeaches.Count - 1);
     }
