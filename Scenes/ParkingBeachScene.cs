@@ -262,6 +262,10 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             case ConsoleKey.Enter:
                 SelectSlot();
                 break;
+
+            case ConsoleKey.R:
+                ExportReport();
+                break;
         }
     }
 
@@ -321,4 +325,15 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
 
         return colors[index];
     }
+    
+    private void ExportReport()
+    {
+        //TODO
+        string report= $@"
+        Ingreso total: ${parkingBeach.TotalRevenue}.
+        Espacios ocupados: {parkingBeach.OccupiedSlots}/{parkingBeach.TotalSlots}
+         ";
+        File.WriteAllText($"Parking_Beach_report{DateTime.Now:yyyyMMdd_HHmmss}.txt",report);
+    }
+    
 }

@@ -19,9 +19,9 @@ public class ParkingBeachManager
     /// </summary>
     /// <param name="width">The width of the new parking beach.</param>
     /// <param name="height">The height of the new parking beach.</param>
-    void AddParkingBeach(uint width, uint height)
+    void AddParkingBeach(uint width, uint height,decimal costPerHour)
     {
-        var parkingBeach = new ParkingBeach(width, height);
+        var parkingBeach = new ParkingBeach(width, height,costPerHour);
         _parkingBeaches.Add(parkingBeach);
     }
 

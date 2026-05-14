@@ -27,7 +27,7 @@ internal class MainMenuScene : IScene
         // Title
         canvas.Draw("╷ ╷╭╮╷╭─╴╭─╮╶┬╴╷ ╷╭─╮╭┬╮╭─╮╭╮ ╷  ╭─╴   ╭─╮╭─╮╭─╮╷╭ ╷╭╮╷╭─╴", (uint)(canvas.Width/2 - 29), originY - 5);
         canvas.Draw("│ ││╰┤├╴ ├─┤ │ ├─┤│ ││││├─┤├┴╮│  ├╴    ├─╯├─┤├┬╯├┴╮││╰┤│╶╮", (uint)(canvas.Width / 2 - 29), originY - 4);
-        canvas.Draw("╰─╯╵ ╵╵  ╵ ╵ ╵ ╵ ╵╰─╯╵ ╵╵ ╵╰─╯╰─╴╰─╴   ╵  ╵ ╵╵╰╴╵ ╵╵╵ ╵╰─╯", (uint)(canvas.Width / 2 - 29), originY - 3)
+        canvas.Draw("╰─╯╵ ╵╵  ╵ ╵ ╵ ╵ ╵╰─╯╵ ╵╵ ╵╰─╯╰─╴╰─╴   ╵  ╵ ╵╵╰╴╵ ╵╵╵ ╵╰─╯", (uint)(canvas.Width / 2 - 29), originY - 3);
 
         // Sorting state
         canvas.Draw($"Sorting by:", originX - 1, originY - 1);
@@ -69,7 +69,7 @@ internal class MainMenuScene : IScene
     {
         if (keyInfo.Key == ConsoleKey.Enter)
         {
-            Engine.Instance?.UpdateScene(new ParkingBeachScene(new Models.ParkingBeach(10, 10), 1, 1));
+            Engine.Instance?.UpdateScene(new ParkingBeachScene(new Models.ParkingBeach(10, 10,100m), 1, 1));
         }
     }
 }
