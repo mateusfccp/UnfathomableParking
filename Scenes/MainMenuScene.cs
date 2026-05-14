@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
@@ -6,10 +6,10 @@ using UnfathomableParking.Services;
 
 namespace UnfathomableParking.Scenes;
 
-public class MainMenuScene(ParkingBeachManager beachManager) : IScene
+public class MainMenuScene(ParkingBeachManager beachManager, int headIndex, int selectedFieldIndex) : IScene
 {
-    private int _headIndex = 0;
-    private int _selectedFieldIndex;
+    private int _headIndex = headIndex;
+    private int _selectedFieldIndex = selectedFieldIndex;
     private SortingState _sortingState = SortingState.capacity;
     private List<ParkingBeach> _parkingBeaches => beachManager.ParkingBeaches;
     private List<ParkingBeach>? _visualParkingBeaches;
@@ -43,12 +43,23 @@ public class MainMenuScene(ParkingBeachManager beachManager) : IScene
         canvas.DrawBox(originX - 2, originY, (uint)width, height);
 
         // Parking lot list visual
-        _visualParkingBeaches = _parkingBeaches[_headIndex..(_headIndex + 4)];
-
-        for (int i = 0; i < 4; i++) // Hacer lista de los que entran (son 4)
+        if (_parkingBeaches.Count >= 4)
         {
-            canvas.DrawBox(originX - 1, (uint)(originY + 1 + i * 5), (uint)width - 2, 5, _selectedFieldIndex == i ? selectedStyle : defaultStyle);
-            canvas.Draw($"{_visualParkingBeaches[i].Width.ToString()}×{_visualParkingBeaches[i].Height.ToString()} parking slots", originX, (uint)(originY + 1 + i * 5) + 2);
+            _visualParkingBeaches = _parkingBeaches[_headIndex..(_headIndex + 4)];
+            for (int i = 0; i < 4; i++) // Hacer lista de los que entran (son 4)
+            {
+                canvas.DrawBox(originX - 1, (uint)(originY + 1 + i * 5), (uint)width - 2, 5, _selectedFieldIndex == i ? selectedStyle : defaultStyle);
+                canvas.Draw($"{_visualParkingBeaches[i].Width.ToString()}×{_visualParkingBeaches[i].Height.ToString()} parking slots", originX, (uint)(originY + 1 + i * 5) + 2);
+            }
+        }
+        else // La lista tiene menos que 4 elementos
+        {
+            _visualParkingBeaches = _parkingBeaches;
+            for (int i = 0; i < _visualParkingBeaches.Count; i++) // Hacer lista de los que entran (son 4)
+            {
+                canvas.DrawBox(originX - 1, (uint)(originY + 1 + i * 5), (uint)width - 2, 5, _selectedFieldIndex == i ? selectedStyle : defaultStyle);
+                canvas.Draw($"{_visualParkingBeaches[i].Width.ToString()}×{_visualParkingBeaches[i].Height.ToString()} parking slots", originX, (uint)(originY + 1 + i * 5) + 2);
+            }
         }
 
         // Pseudo slider -> TODO: slider visual logic
@@ -80,7 +91,9 @@ public class MainMenuScene(ParkingBeachManager beachManager) : IScene
 
     public void OnKeyPressed(ConsoleKeyInfo keyInfo)
     {
-        _headIndex = Math.Clamp(_headIndex, 0, _parkingBeaches.Count - 4);
+        // Clamps
+        if (_parkingBeaches.Count >= 4) _headIndex = Math.Clamp(_headIndex, 0, _parkingBeaches.Count - 4);
+        else _headIndex = 0;
 
         // Basic switch case format
         switch (keyInfo.Key)
@@ -88,18 +101,19 @@ public class MainMenuScene(ParkingBeachManager beachManager) : IScene
             case ConsoleKey.DownArrow:
                 _selectedFieldIndex++;
                 if (_selectedFieldIndex == 4 && !(_headIndex + 4 == _parkingBeaches.Count)) _headIndex++;
-                _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, 3);
                 break;
             case ConsoleKey.UpArrow:
                 _selectedFieldIndex--;
                 if (_selectedFieldIndex == -1 && !(_headIndex == 0)) _headIndex--;
-                _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, 3);
                 break;
             case ConsoleKey.Enter:
                 _selectedBeach = _selectedFieldIndex + _headIndex;
-                if (SelectedBeach != null) Engine.Instance?.UpdateScene(new ParkingBeachScene(SelectedBeach, 0, 0));
+                if (_parkingBeaches != null && _parkingBeaches.Count != 0 && SelectedBeach != null) Engine.Instance?.UpdateScene(new ParkingBeachScene(SelectedBeach, beachManager, _headIndex, _selectedFieldIndex));
                 break;
 
         }
+
+        if (_parkingBeaches != null &&  _parkingBeaches.Count >= 4) _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, 3);
+        else if (_parkingBeaches != null && _parkingBeaches.Count != 0) _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, _parkingBeaches.Count - 1);
     }
 }

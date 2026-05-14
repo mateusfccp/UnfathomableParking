@@ -2,13 +2,14 @@
 using UnfathomableParking.Services;
 
 ParkingBeachManager _beachManager = new ParkingBeachManager();
-_beachManager.AddParkingBeach(20, 20);
-_beachManager.AddParkingBeach(15, 20);
-_beachManager.AddParkingBeach(20, 10);
-_beachManager.AddParkingBeach(17, 12);
-_beachManager.AddParkingBeach(10, 20);
-_beachManager.AddParkingBeach(15, 3);
+_beachManager.AddParkingBeach(10, 1);
+_beachManager.AddParkingBeach(10, 2);
+_beachManager.AddParkingBeach(10, 3);
+_beachManager.AddParkingBeach(10, 4);
+_beachManager.AddParkingBeach(10, 5);
+_beachManager.AddParkingBeach(10, 6);
+_beachManager.AddParkingBeach(10, 7);
 
-var scene = new MainMenuScene(_beachManager);
+var scene = new MainMenuScene(_beachManager, 0, 0);
 var engine = new Engine(scene);
 engine.Start();

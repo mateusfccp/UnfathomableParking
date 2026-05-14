@@ -12,7 +12,7 @@ namespace UnfathomableParking.Scenes;
 /// The user can navigate the parking beach using the arrow keys and select a vehicle to 
 /// </summary>
 /// <param name="parkingBeach"></param>
-public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint cursorY = 0) : IScene
+public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager beachManager, int headIndex, int selectedFieldIndex, uint cursorX = 0, uint cursorY = 0) : IScene
 {
     private Point CursorPosition { get; set; } = new((int)cursorX, (int)cursorY);
 
@@ -263,6 +263,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 SelectSlot();
                 break;
             case ConsoleKey.Escape:
+                Engine.Instance?.UpdateScene(new MainMenuScene(beachManager, headIndex, selectedFieldIndex));
                 break;
 
 
@@ -281,13 +282,13 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                     {
                         parkingBeach.UnparkVehicle((uint)CursorPosition.X, (uint)CursorPosition.Y);
                         Engine.Instance.UpdateScene(
-                            new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                            new ParkingBeachScene(parkingBeach, beachManager, headIndex, selectedFieldIndex, (uint)CursorPosition.X, (uint)CursorPosition.Y)
                         );
                     },
                     onCancel: () =>
                     {
                         Engine.Instance.UpdateScene(
-                            new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                            new ParkingBeachScene(parkingBeach, beachManager, headIndex, selectedFieldIndex, (uint)CursorPosition.X, (uint)CursorPosition.Y)
                         );
                     }
                 )
@@ -296,7 +297,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         else
         {
             Engine.Instance?.UpdateScene(
-                new ParkVehicleScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                new ParkVehicleScene(parkingBeach, beachManager, headIndex, selectedFieldIndex, (uint)CursorPosition.X, (uint)CursorPosition.Y)
             );
         }
     }
