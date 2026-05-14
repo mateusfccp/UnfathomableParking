@@ -376,13 +376,13 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
                 onConfirm: () =>
                 {
                     Engine.Instance.UpdateScene(
-                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                        new ParkingBeachScene(parkingBeach, beachManager, headIndex, selectedFieldIndex, (uint)CursorPosition.X, (uint)CursorPosition.Y)
                     );
                 },
                 onCancel: () =>
                 {
                     Engine.Instance.UpdateScene(
-                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                        new ParkingBeachScene(parkingBeach, beachManager, headIndex, selectedFieldIndex, (uint)CursorPosition.X, (uint)CursorPosition.Y)
                     );
                 }
             )
