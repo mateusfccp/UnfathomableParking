@@ -67,4 +67,8 @@ public class TextField(string initialText = "", string hintText = "", IInputForm
 
         return $"{prefix}{text[(int)startIndex..]}";
     }
+    class numberFormatter()
+    {
+
+    }
 }
