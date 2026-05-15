@@ -16,7 +16,7 @@ public class ListSelectionScene<T> : IScene where T : notnull
     private readonly List<T> _options;
     private readonly uint _maximumLength;
     private uint _selectedIndex;
-    private readonly Func<T, string> _formatter = option => option.ToString();
+    private readonly Func<T, string> _formatter = option => option.ToString() ?? "";
     private readonly Action<T> _onSelect = _ => { };
 
     /// <summary>

@@ -35,8 +35,8 @@ class EditBeachScene : IScene
         var revenueFormatter = new RevenueFormatter();
         _nameField = new TextField(currentBeach?.Name ?? "", "Ex: Parking beach 01");
         _revenueField = new TextField(currentBeach?.RevenuePerHour + "", "Ex: 15.50", revenueFormatter);
-        _widthField = new TextField((currentBeach?.Width ?? 0).ToString(), "0", numberFormatter);
-        _heightField = new TextField((currentBeach?.Height ?? 0).ToString(), "0", numberFormatter);
+        _widthField = new TextField(currentBeach?.Width is { } width ? width.ToString() : "", "0", numberFormatter);
+        _heightField = new TextField(currentBeach?.Height is { } height ? height.ToString() : "", "0", numberFormatter);
         _createButton = new Button(IsEditing ? "Confirm Edit" : "Create", Submit);
     }
 
