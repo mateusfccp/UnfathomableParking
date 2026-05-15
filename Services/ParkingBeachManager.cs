@@ -10,7 +10,7 @@ public class ParkingBeachManager
     /// <summary>
     /// The list of parking beaches.
     /// </summary>
-    public List<ParkingBeach> ParkingBeaches => [.._parkingBeaches];
+    public List<ParkingBeach> ParkingBeaches => [.. _parkingBeaches];
 
     private readonly List<ParkingBeach> _parkingBeaches = [];
 
@@ -31,13 +31,14 @@ public class ParkingBeachManager
     /// <param name="index">The index of the parking beach.</param>
     /// <param name="width">The new width of the parking beach.</param>
     /// <param name="height">The new height of the parking beach.</param>
-    public void EditParkingBeach(string oldName, string newName, uint width, uint height)
+    public void EditParkingBeach(string oldName, string newName, uint width, uint height, decimal revenue)
     {
         var editedBeach = _parkingBeaches.FirstOrDefault(a => a.Name == oldName);
         if (editedBeach != null)
         {
             editedBeach.Name = newName;
             editedBeach.Resize(width, height);
+            editedBeach.RevenuePerHour = revenue;
         }
 
     }

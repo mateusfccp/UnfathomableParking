@@ -14,16 +14,18 @@ using static UnfathomableParking.Services.Engine;
 
 class EditBeachScene : IScene
 {
-    const int AmountOfFields = 5;
+    const int AmountOfFields = 6;
     int selectedField;
     string errorMessage = "";
     private readonly TextField _nameField;
+    private readonly TextField _revenueField;
     private readonly TextField _widthField;
     private readonly TextField _heightField;
     private readonly Button _createButton;
     ParkingBeachManager manager;
     IScene lastScene;
     NumberFormatter validateInputs;
+    RevenueFormatter validateRevenue;
     ParkingBeach? currentBeach;
     public EditBeachScene(ParkingBeachManager manager, IScene last, ParkingBeach? currentBeach = null)
     {
@@ -31,8 +33,9 @@ class EditBeachScene : IScene
         this.lastScene = last;
         this.currentBeach = currentBeach;
         validateInputs = new NumberFormatter();
-
+        validateRevenue = new RevenueFormatter();
         _nameField = new TextField(currentBeach?.Name ?? "", "Ex: Parking beach 01");
+        _revenueField = new TextField(currentBeach?.RevenuePerHour + "", "Ex: 15.50", validateRevenue);
         _widthField = new TextField(currentBeach?.Width + "" ?? "", "0", validateInputs);
         _heightField = new TextField(currentBeach?.Height + "" ?? "", "0", validateInputs);
         _createButton = new Button("Confirm Edit", EditBeach);
@@ -42,7 +45,7 @@ class EditBeachScene : IScene
     {
         canvas.Clear();
         const uint CanvasMaxWidth = 40;
-        const uint CanvasHeight = 32;
+        const uint CanvasHeight = 36;
         uint canvasWidth = (uint)Math.Min(CanvasMaxWidth, canvas.Width);
         var originX = (uint)(canvas.Width / 2 - canvasWidth / 2);
         var originY = (uint)(canvas.Height / 2 - CanvasHeight / 2);
@@ -64,14 +67,17 @@ class EditBeachScene : IScene
         // Name box
         canvas.Draw("New Name", originX + 3, originY + 9, textStyle);
         _nameField.Draw(canvas, originX + 2, originY + 10, canvasWidth - 4, selectedField == 1 ? selectedStyle : defaultStyle);
+        // Revenue box
+        canvas.Draw("New Revenue", originX + 3, originY + 14, textStyle);
+        _revenueField.Draw(canvas, originX + 2, originY + 15, canvasWidth - 4, selectedField == 2 ? selectedStyle : defaultStyle);
         // Width box
-        canvas.Draw("New Width", originX + 3, originY + 14, textStyle);
-        _widthField.Draw(canvas, originX + 2, originY + 15, canvasWidth - 4, selectedField == 2 ? selectedStyle : defaultStyle);
+        canvas.Draw("New Width", originX + 3, originY + 19, textStyle);
+        _widthField.Draw(canvas, originX + 2, originY + 20, canvasWidth - 4, selectedField == 3 ? selectedStyle : defaultStyle);
         // Height box
-        canvas.Draw("New Height", originX + 3, originY + 19, textStyle);
-        _heightField.Draw(canvas, originX + 2, originY + 20, canvasWidth - 4, selectedField == 3 ? selectedStyle : defaultStyle);
+        canvas.Draw("New Height", originX + 3, originY + 24, textStyle);
+        _heightField.Draw(canvas, originX + 2, originY + 25, canvasWidth - 4, selectedField == 4 ? selectedStyle : defaultStyle);
         // Edit button
-        _createButton.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + CanvasHeight - 5, canvasWidth / 2, selectedField == 4 ? selectedStyle : defaultStyle);
+        _createButton.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + CanvasHeight - 5, canvasWidth / 2, selectedField == 5 ? selectedStyle : defaultStyle);
         //Error message
         if (!string.IsNullOrEmpty(errorMessage))
         {
@@ -107,12 +113,15 @@ class EditBeachScene : IScene
                 _nameField.ProcessKey(keyInfo);
                 break;
             case 2:
-                _widthField.ProcessKey(keyInfo);
+                _revenueField.ProcessKey(keyInfo);
                 break;
             case 3:
-                _heightField.ProcessKey(keyInfo);
+                _widthField.ProcessKey(keyInfo);
                 break;
             case 4:
+                _heightField.ProcessKey(keyInfo);
+                break;
+            case 5:
                 _createButton.ProcessKey(keyInfo);
                 break;
 
@@ -134,15 +143,24 @@ class EditBeachScene : IScene
             {
                 if (currentBeach != null)
                 {
-                    if (uint.TryParse(_widthField.Text, out uint w) && uint.TryParse(_heightField.Text, out uint h) && w > 0 && h > 0)
+                    if (!string.IsNullOrWhiteSpace(_revenueField.Text))
                     {
-                        manager.EditParkingBeach(currentBeach.Name, _nameField.Text, w, h);
-                        Engine.Instance?.UpdateScene(lastScene);
+                        if (uint.TryParse(_widthField.Text, out uint w) && uint.TryParse(_heightField.Text, out uint h) && w > 0 && h > 0)
+                        {
+                            decimal revenue = decimal.TryParse(_revenueField.Text, out var result) ? result : 0;
+                            manager.EditParkingBeach(currentBeach.Name, _nameField.Text, w, h, revenue);
+                            Engine.Instance?.UpdateScene(lastScene);
+                        }
+                        else
+                        {
+                            errorMessage = "Width and Height must not be zero";
+                        }
                     }
                     else
                     {
-                        errorMessage = "Width and Height must not be zero";
+                        errorMessage = "Missing revenue;";
                     }
+
                 }
                 else
                 {
@@ -166,6 +184,24 @@ class EditBeachScene : IScene
             if (string.IsNullOrEmpty(next)) return next;
             if (next.Length < current.Length) return next;
             if (char.IsDigit(next.Last())) return next;
+            return current;
+        }
+    }
+    class RevenueFormatter : IInputFormatter
+    {
+        public string Format(string current, string next)
+        {
+            if (string.IsNullOrEmpty(next)) return next;
+            if (next.Length < current.Length) return next;
+
+            char lastChar = next.Last();
+            if (char.IsDigit(lastChar)) return next;
+
+            if ((lastChar == '.' || lastChar == ',') && !current.Contains('.') && !current.Contains(','))
+            {
+                return next;
+            }
+
             return current;
         }
     }
