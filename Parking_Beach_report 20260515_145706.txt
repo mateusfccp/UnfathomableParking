@@ -1,6 +1,0 @@
-========*Parking Beach Name*========
-Total Revenue: $0,00.
-Occupied Spaces: 1/75.
-Vehicles:
-- Fiat Nigga (ASD142) -> Parked at viernes, 15 mayo 2026 14:56 | To pay: 15,00
-Total Revenue to pay: $15,00
