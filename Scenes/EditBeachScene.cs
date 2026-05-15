@@ -35,7 +35,7 @@ class EditBeachScene : IScene
         validateInputs = new NumberFormatter();
         validateRevenue = new RevenueFormatter();
         _nameField = new TextField(currentBeach?.Name ?? "", "Ex: Parking beach 01");
-        _revenueField = new TextField(currentBeach?.RevenuePerHour + "", "Ex: 15.50", validateRevenue);
+        _revenueField = new TextField(currentBeach?.RevenuePerHour + "", "Ex: 15,50", validateRevenue);
         _widthField = new TextField(currentBeach?.Width + "" ?? "", "0", validateInputs);
         _heightField = new TextField(currentBeach?.Height + "" ?? "", "0", validateInputs);
         _createButton = new Button("Confirm Edit", EditBeach);
@@ -106,6 +106,11 @@ class EditBeachScene : IScene
         switch (selectedField)
         {
             case 0 when keyInfo.Key == ConsoleKey.Enter:
+                if (manager.ParkingBeaches.Count == 0)
+                {
+                    errorMessage = "No beaches available.";
+                    break;
+                }
                 var initialIndex = currentBeach == null ? 0 : (uint)manager.ParkingBeaches.IndexOf(currentBeach);
                 Instance?.UpdateScene(new ListSelectionScene<ParkingBeach>(manager.ParkingBeaches, initialIndex, onSelect: OnSelect, formatter: beach => beach.Name));
                 break;
@@ -145,7 +150,7 @@ class EditBeachScene : IScene
                 {
                     if (!string.IsNullOrWhiteSpace(_revenueField.Text))
                     {
-                        if (uint.TryParse(_widthField.Text, out uint w) && uint.TryParse(_heightField.Text, out uint h) && w > 0 && h > 0)
+                        if (uint.TryParse(_widthField.Text, out uint w) && uint.TryParse(_heightField.Text, out uint h) && w > 0 && h > 0 && w <= 100 && h <= 100)
                         {
                             decimal revenue = decimal.TryParse(_revenueField.Text, out var result) ? result : 0;
                             manager.EditParkingBeach(currentBeach.Name, _nameField.Text, w, h, revenue);
@@ -153,7 +158,7 @@ class EditBeachScene : IScene
                         }
                         else
                         {
-                            errorMessage = "Width and Height must not be zero";
+                            errorMessage = "Size must be 1-100";
                         }
                     }
                     else
@@ -183,6 +188,7 @@ class EditBeachScene : IScene
         {
             if (string.IsNullOrEmpty(next)) return next;
             if (next.Length < current.Length) return next;
+            if (next.Length > 3) return current;
             if (char.IsDigit(next.Last())) return next;
             return current;
         }
@@ -193,7 +199,7 @@ class EditBeachScene : IScene
         {
             if (string.IsNullOrEmpty(next)) return next;
             if (next.Length < current.Length) return next;
-
+            if (next.Length > 10) return current;
             char lastChar = next.Last();
             if (char.IsDigit(lastChar)) return next;
 

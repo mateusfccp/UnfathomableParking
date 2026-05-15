@@ -1,8 +1,10 @@
+using System.ComponentModel;
 using System.Drawing;
 using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
 using UnfathomableParking.Services;
+using static UnfathomableParking.Services.Engine;
 
 namespace UnfathomableParking.Scenes;
 
@@ -40,6 +42,13 @@ public class MainMenuScene : IScene
     /// <param name="canvas"></param>
     public void Draw(Engine.Canvas canvas)
     {
+        _sortedBeaches = mergeSort(new List<ParkingBeach>(_beachManager.ParkingBeaches), _sortingState);
+        if (_parkingBeaches.Count >= 4) _headIndex = Math.Clamp(_headIndex, 0, _parkingBeaches.Count - 4);
+        else _headIndex = 0;
+
+        if (_parkingBeaches.Count >= 4) _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, 3);
+        else if (_parkingBeaches.Count != 0) _selectedFieldIndex = Math.Clamp(_selectedFieldIndex, 0, _parkingBeaches.Count - 1);
+        else _selectedFieldIndex = 0;
         canvas.Clear();
         const int width = 51;
         const int height = 22;
@@ -68,7 +77,7 @@ public class MainMenuScene : IScene
             for (int i = 0; i < 4; i++) // Hacer lista de los que entran (son 4)
             {
                 canvas.DrawBox(originX - 1, (uint)(originY + 1 + i * 5), (uint)width - 2, 5, _selectedFieldIndex == i ? selectedStyle : defaultStyle);
-                canvas.Draw($"{_visualParkingBeaches[i].Name + ":", -25} {_visualParkingBeaches[i].FreeSlots + " slots", -4} {"$" + _visualParkingBeaches[i].TotalRevenue,-10}", originX, (uint)(originY + 1 + i * 5) + 2);
+                canvas.Draw($"{_visualParkingBeaches[i].Name + ":",-25} {_visualParkingBeaches[i].FreeSlots + " slots",-4} {"$" + _visualParkingBeaches[i].TotalRevenue,-10}", originX, (uint)(originY + 1 + i * 5) + 2);
             }
         }
         else // La lista tiene menos que 4 elementos
@@ -77,7 +86,7 @@ public class MainMenuScene : IScene
             for (int i = 0; i < _visualParkingBeaches.Count; i++) // Hacer lista completa
             {
                 canvas.DrawBox(originX - 1, (uint)(originY + 1 + i * 5), (uint)width - 2, 5, _selectedFieldIndex == i ? selectedStyle : defaultStyle);
-                canvas.Draw($"{"Parking lot name" + ":",-25} {_visualParkingBeaches[i].FreeSlots + " slots", -4} {"$" + _visualParkingBeaches[i].TotalRevenue,-10}", originX, (uint)(originY + 1 + i * 5) + 2); // Temporary format will change name and maybe add colour
+                canvas.Draw($"{_visualParkingBeaches[i].Name + ":",-25} {_visualParkingBeaches[i].FreeSlots + " slots",-4} {"$" + _visualParkingBeaches[i].TotalRevenue,-10}", originX, (uint)(originY + 1 + i * 5) + 2); // Temporary format will change name and maybe add colour
             }
         }
 
@@ -174,12 +183,18 @@ public class MainMenuScene : IScene
 
             // ACA TENES QUE HACER TU PARTE JOAQUIN!!!!!!!!!!!!
             case ConsoleKey.C:
+                var createScene = new CreateBeachScene(_beachManager, this);
+                Instance?.UpdateScene(createScene);
                 break;
             case ConsoleKey.E:
+                var editScene = new EditBeachScene(_beachManager, this);
+                Instance?.UpdateScene(editScene);
                 break;
             case ConsoleKey.D:
+                var deleteScene = new DeleteBeachScene(_beachManager, this);
+                Instance?.UpdateScene(deleteScene);
                 break;
-             // Yo recomiendo que hagas una variable Scene? newScene = TuScene y despues haces el update(newScene)
+                // Yo recomiendo que hagas una variable Scene? newScene = TuScene y despues haces el update(newScene)
 
         }
 
