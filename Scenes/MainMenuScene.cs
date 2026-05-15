@@ -25,12 +25,13 @@ public class MainMenuScene : IScene
     /// </summary>
     public ParkingBeach? SelectedBeach => _visualParkingBeaches?[_selectedFieldIndex];
 
-    public MainMenuScene(ParkingBeachManager beachManager, int headIndex, int selectedFieldIndex)
+    public MainMenuScene(ParkingBeachManager beachManager, int headIndex, int selectedFieldIndex, SortingState sortingState = SortingState.capacity)
     {
         _headIndex = headIndex;
         _selectedFieldIndex = selectedFieldIndex;
         _sortedBeaches = mergeSort(new List<ParkingBeach>(beachManager.ParkingBeaches), _sortingState);
         _beachManager = beachManager;
+        _sortingState = sortingState;
     }
 
     /// <summary>
@@ -154,7 +155,7 @@ public class MainMenuScene : IScene
                 if (_selectedFieldIndex == -1 && !(_headIndex == 0)) _headIndex--;
                 break;
             case ConsoleKey.Enter:
-                if (_parkingBeaches != null && _parkingBeaches.Count != 0 && SelectedBeach != null) Engine.Instance?.UpdateScene(new ParkingBeachScene(SelectedBeach, _beachManager, _headIndex, _selectedFieldIndex));
+                if (_parkingBeaches != null && _parkingBeaches.Count != 0 && SelectedBeach != null) Engine.Instance?.UpdateScene(new ParkingBeachScene(SelectedBeach, _beachManager, _headIndex, _selectedFieldIndex, _sortingState));
                 break;
             case ConsoleKey.S:
                 _headIndex = 0;

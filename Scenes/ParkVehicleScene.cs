@@ -27,6 +27,7 @@ public class ParkVehicleScene : IScene
     private readonly ParkingBeachManager _beachManager;
     private readonly int _headIndex;
     private readonly int _selectedFieldIndexMenu;
+    private readonly SortingState _sortingState;
     private readonly uint _x;
     private readonly uint _y;
     private readonly VehicleBrand? _selectedBrand;
@@ -44,6 +45,7 @@ public class ParkVehicleScene : IScene
         ParkingBeachManager beachManager,
         int headIndex,
         int selectedFieldIndex,
+        SortingState sortingState,
         uint x,
         uint y,
         VehicleBrand? selectedBrand = null,
@@ -54,6 +56,7 @@ public class ParkVehicleScene : IScene
         _beachManager = beachManager;
         _headIndex = headIndex;
         _selectedFieldIndexMenu = selectedFieldIndex;
+        _sortingState = sortingState;
         _x = x;
         _y = y;
         _selectedBrand = selectedBrand;
@@ -169,7 +172,7 @@ public class ParkVehicleScene : IScene
         void OnSelect(VehicleBrand brand)
         {
             Instance?.UpdateScene(
-                new ParkVehicleScene(_parkingBeach, _beachManager, _headIndex, _selectedFieldIndexMenu, _x, _y, brand, _modelTextField.Text, _licensePlateTextField.Text)
+                new ParkVehicleScene(_parkingBeach, _beachManager, _headIndex, _selectedFieldIndexMenu, _sortingState, _x, _y, brand, _modelTextField.Text, _licensePlateTextField.Text)
             );
         }
     }
@@ -199,12 +202,12 @@ public class ParkVehicleScene : IScene
 
         var newVehicle = new Vehicle(_selectedBrand!.Value, _modelTextField.Text, LicensePlateNormalized);
         _parkingBeach.ParkVehicle(newVehicle, _x, _y);
-        Instance?.UpdateScene(new ParkingBeachScene(_parkingBeach, _beachManager, _headIndex, _selectedFieldIndexMenu, _x, _y));
+        Instance?.UpdateScene(new ParkingBeachScene(_parkingBeach, _beachManager, _headIndex, _selectedFieldIndexMenu, _sortingState, _x, _y));
     }
 
     private void CancelForm()
     {
-        Instance?.UpdateScene(new ParkingBeachScene(_parkingBeach, _beachManager, _headIndex, _selectedFieldIndexMenu, _x, _y));
+        Instance?.UpdateScene(new ParkingBeachScene(_parkingBeach, _beachManager, _headIndex, _selectedFieldIndexMenu, _sortingState, _x, _y));
     }
 
     private class LicensePlateFormatter : IInputFormatter
