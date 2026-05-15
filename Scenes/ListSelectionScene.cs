@@ -1,4 +1,5 @@
 using System.Drawing;
+using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
 using UnfathomableParking.Services;
@@ -9,9 +10,10 @@ namespace UnfathomableParking.Scenes;
 /// A scene that displays a list of enum values.
 /// </summary>
 /// <typeparam name="T">The type of enum to display.</typeparam>
-public class ListSelectionScene<T> : IScene
+public class ListSelectionScene<T> : IScene where T : notnull
 {
-    private readonly List<T>? _options;
+    private readonly string? _title;
+    private readonly List<T> _options;
     private readonly uint _maximumLength;
     private uint _selectedIndex;
     private readonly Func<T, string> _formatter = option => option.ToString();
@@ -20,17 +22,25 @@ public class ListSelectionScene<T> : IScene
     /// <summary>
     /// Creates a new ListSelectionScene.
     /// </summary>
+    /// <param name="options">The list of enum values to display.</param>
     /// <param name="initialSelectedIndex">The initial index of the selected option.</param>
     /// <param name="formatter">A custom formatter for enum _options. Defaults to ToString() if null.</param>
     /// <param name="onSelect">A callback that is called when an option is selected. Defaults to a no-op if null.</param>
-    public ListSelectionScene(List<T> _options, uint initialSelectedIndex = 0, Func<T, string>? formatter = null,
-        Action<T>? onSelect = null)
+    /// <param name="title">The title of the scene.</param>
+    public ListSelectionScene(
+        List<T> options,
+        uint initialSelectedIndex = 0,
+        Func<T, string>? formatter = null,
+        Action<T>? onSelect = null,
+        string? title = null
+    )
     {
-        this._options = _options;
-        _maximumLength = (uint)_options.Select(option => formatter(option).Length).Max();
-        _selectedIndex = initialSelectedIndex;
+        _options = options;
         _formatter = formatter ?? _formatter;
+        _maximumLength = (uint)options.Select(option => _formatter(option).Length).Max();
+        _selectedIndex = initialSelectedIndex;
         _onSelect = onSelect ?? _onSelect;
+        _title = title;
     }
 
     public void Draw(Engine.Canvas canvas)
@@ -50,6 +60,17 @@ public class ListSelectionScene<T> : IScene
             var isSelected = i == _selectedIndex;
             canvas.Draw(_formatter(option), originX + 2, originY + i + 1,
                 isSelected ? new Style(foregroundColor: Color.DodgerBlue) : new Style());
+        }
+
+        if (_title != null)
+        {
+            canvas.Draw(
+                _title,
+                originX + width / 2,
+                originY - 2,
+                new Style(decoration: Decoration.Bold),
+                Alignment.Center
+            );
         }
     }
 
