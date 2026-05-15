@@ -134,8 +134,8 @@ public class ParkVehicleScene : IScene
                 var initialIndex = _selectedBrand == null ? 0 : (uint)_selectedBrand;
                 var nextScene = new EnumSelectionScene<VehicleBrand>(
                     initialIndex,
-                    onSelect: OnSelect,
-                    title: "Select the vehicle brand"
+                    onSelect: OnSelect
+                    // title: "Select the vehicle brand"
                 );
 
                 Instance?.UpdateScene(nextScene);
