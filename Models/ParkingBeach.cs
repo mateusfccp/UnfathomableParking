@@ -58,7 +58,7 @@ public class ParkingBeach
     /// <summary>
     /// The revenue per hour of the parking Beach
     /// </summary>
-    public decimal RevenuePerHour { get; private set; }
+    public decimal RevenuePerHour { get; set; }
 
     private ParkingSlot?[,] _slots;
 
