@@ -40,7 +40,7 @@ public class ParkingBeach
         }
         if (string.IsNullOrEmpty(name))
         {
-            throw new ArgumentNullException(nameof(name), "The parking beach must have a valid name.");
+            throw new ArgumentNullException(nameof(name), "The parking beach must have a non-empty name.");
         }
         Name = name;
         Width = width;
