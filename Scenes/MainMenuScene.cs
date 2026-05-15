@@ -67,7 +67,7 @@ public class MainMenuScene : IScene
             for (int i = 0; i < 4; i++) // Hacer lista de los que entran (son 4)
             {
                 canvas.DrawBox(originX - 1, (uint)(originY + 1 + i * 5), (uint)width - 2, 5, _selectedFieldIndex == i ? selectedStyle : defaultStyle);
-                canvas.Draw($"{"Parking lot name" + ":", -25} {_visualParkingBeaches[i].FreeSlots + " slots", -4} {"$" + _visualParkingBeaches[i].TotalRevenue,-10}", originX, (uint)(originY + 1 + i * 5) + 2);
+                canvas.Draw($"{"" + ":", -25} {_visualParkingBeaches[i].FreeSlots + " slots", -4} {"$" + _visualParkingBeaches[i].TotalRevenue,-10}", originX, (uint)(originY + 1 + i * 5) + 2);
             }
         }
         else // La lista tiene menos que 4 elementos
