@@ -14,11 +14,11 @@ using static UnfathomableParking.Services.Engine;
 
 class DeleteBeachScene : IScene
 {
-    int amountOfFields = 3;
+    const int AmountOfFields = 3;
     int selectedField;
     string errorMessage = "";
-    Button deleteBeach;
-    Button cancelDelete;
+    private readonly Button _deleteButton;
+    private readonly Button _cancelButton;
     ParkingBeachManager manager;
     IScene lastScene;
     ParkingBeach? currentBeach;
@@ -29,23 +29,23 @@ class DeleteBeachScene : IScene
         this.currentBeach = currentBeach;
 
 
-        deleteBeach = new Button("Confirm Delete", DeleteBeach);
-        cancelDelete = new Button("Cancel Delete", CancelDelete);
+        _deleteButton = new Button("Confirm Delete", DeleteBeach);
+        _cancelButton = new Button("Cancel Delete", CancelDelete);
     }
 
     public void Draw(Engine.Canvas canvas)
     {
         canvas.Clear();
-        uint canvasMaxWidth = 40;
-        uint canvasHeight = 19;
-        uint canvasWidth = (uint)Math.Min(canvasMaxWidth, canvas.Width);
+        const uint CanvasMaxWidth = 40;
+        const uint CanvasHeight = 19;
+        uint canvasWidth = (uint)Math.Min(CanvasMaxWidth, canvas.Width);
         var originX = (uint)(canvas.Width / 2 - canvasWidth / 2);
-        var originY = (uint)(canvas.Height / 2 - canvasHeight / 2);
+        var originY = (uint)(canvas.Height / 2 - CanvasHeight / 2);
         var selectedStyle = new Style(foregroundColor: Color.Red);
         var defaultStyle = new Style(foregroundColor: Color.Firebrick);
-        var cancelDeleteStyle = new Style(foregroundColor: Color.LimeGreen);
+        var _cancelButtonStyle = new Style(foregroundColor: Color.LimeGreen);
 
-        canvas.DrawBox(originX, originY, canvasWidth, canvasHeight);
+        canvas.DrawBox(originX, originY, canvasWidth, CanvasHeight);
 
         string nameText = "Delete a parking beach";
         canvas.Draw(nameText, originX + canvasWidth / 2, originY + 1, selectedStyle, Alignment.Center);
@@ -55,20 +55,20 @@ class DeleteBeachScene : IScene
         canvas.Draw(currentBeach?.Name ?? "Select beach", originX + 3, originY + 6, currentBeach == null ? new Style(decoration: Decoration.Faint) : new Style());
         canvas.Draw("▼", originX + canvasWidth - 4, originY + 6);
         // Delete button
-        deleteBeach.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + canvasHeight - 8, canvasWidth / 2, selectedField == 1 ? selectedStyle : cancelDeleteStyle);
+        _deleteButton.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + CanvasHeight - 8, canvasWidth / 2, selectedField == 1 ? selectedStyle : _cancelButtonStyle);
         // Cancel button
-        cancelDelete.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + canvasHeight - 5, canvasWidth / 2, selectedField == 2 ? selectedStyle : cancelDeleteStyle);
+        _cancelButton.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + CanvasHeight - 5, canvasWidth / 2, selectedField == 2 ? selectedStyle : _cancelButtonStyle);
         //Error message
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            canvas.Draw("ERROR:", originX + canvasWidth / 2, originY + canvasHeight - 10, defaultStyle, Alignment.Center);
-            canvas.Draw(errorMessage, originX + canvasWidth / 2, originY + canvasHeight - 9, defaultStyle, Alignment.Center);
+            canvas.Draw("ERROR:", originX + canvasWidth / 2, originY + CanvasHeight - 10, defaultStyle, Alignment.Center);
+            canvas.Draw(errorMessage, originX + canvasWidth / 2, originY + CanvasHeight - 9, defaultStyle, Alignment.Center);
         }
     }
 
     public void OnKeyPressed(ConsoleKeyInfo keyInfo)
     {
-        if (selectedField < amountOfFields - 1 && keyInfo.Key == ConsoleKey.DownArrow)
+        if (selectedField < AmountOfFields - 1 && keyInfo.Key == ConsoleKey.DownArrow)
         {
             selectedField++;
             return;
@@ -90,22 +90,22 @@ class DeleteBeachScene : IScene
                 Instance?.UpdateScene(new ListSelectionScene<ParkingBeach>(manager.ParkingBeaches, initialIndex, onSelect: OnSelect, formatter: beach => beach.Name));
                 break;
             case 1:
-                deleteBeach.ProcessKey(keyInfo);
+                _deleteButton.ProcessKey(keyInfo);
                 break;
             case 2:
-                cancelDelete.ProcessKey(keyInfo);
+                _cancelButton.ProcessKey(keyInfo);
                 break;
 
         }
     }
-    void OnSelect(ParkingBeach beach)
+    private void OnSelect(ParkingBeach beach)
     {
         Instance?.UpdateScene(
             new DeleteBeachScene(manager, lastScene, beach)
         );
     }
 
-    public void DeleteBeach()
+    private void DeleteBeach()
     {
         if (currentBeach != null)
         {
@@ -114,12 +114,12 @@ class DeleteBeachScene : IScene
         }
         else
         {
-            errorMessage = "Beach not selected";
+            errorMessage = "There's no beach selected.";
         }
 
 
     }
-    public void CancelDelete()
+    private void CancelDelete()
     {
         Engine.Instance?.UpdateScene(lastScene);
     }

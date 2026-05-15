@@ -36,7 +36,7 @@ public class ParkingBeachManager
         var editedBeach = _parkingBeaches.FirstOrDefault(a => a.Name == oldName);
         if (editedBeach != null)
         {
-            editedBeach.Rename(newName);
+            editedBeach.Name = newName;
             editedBeach.Resize(width, height);
         }
 
@@ -53,11 +53,5 @@ public class ParkingBeachManager
         {
             _parkingBeaches.Remove(removedBeach);
         }
-    }
-
-
-    public List<ParkingBeach> GetParkingBeaches()
-    {
-        return ParkingBeaches;
     }
 }

@@ -5,7 +5,7 @@ public class ParkingBeach
     /// <summary>
     /// The name of the parking beach.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; set; }
 
     /// <summary>
     /// The width of the parking beach.
@@ -67,15 +67,6 @@ public class ParkingBeach
         _slots = newSlots;
         Width = width;
         Height = height;
-    }
-    /// <summary>
-    /// Resize the parking beach to the given width and height.
-    /// </summary>
-    /// <param name="width">The new width of the parking beach.</param>
-    /// <param name="height">The new height of the parking beach.</param>
-    public void Rename(string name)
-    {
-        Name = name;
     }
 
     /// <summary>

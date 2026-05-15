@@ -7,72 +7,71 @@ using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
 using UnfathomableParking.Services;
 
-class CreateBeachScene : IScene
+class _createButtonScene : IScene
 {
-    int amountOfFields = 4;
+    const int AmountOfFields = 4;
     int selectedField;
     string errorMessage = "";
-    TextField beachName;
-    TextField beachWidth;
-    TextField beachHeight;
-    Button createBeach;
+    private readonly TextField _nameField;
+    private readonly TextField _widthField;
+    private readonly TextField _heightField;
+    private readonly Button _createButton;
     ParkingBeachManager manager;
     IScene lastScene;
-    NumberFormatter validateInputs;
-    public CreateBeachScene(ParkingBeachManager manager, IScene last)
+    public _createButtonScene(ParkingBeachManager manager, IScene last)
     {
         this.manager = manager;
         this.lastScene = last;
 
 
-        validateInputs = new NumberFormatter();
-        beachName = new TextField("", "Ex: Parking beach 01");
-        beachWidth = new TextField("", "0", validateInputs);
-        beachHeight = new TextField("", "0", validateInputs);
-        createBeach = new Button("Create", SaveNewBeach);
+        NumberFormatter validateInputs = new NumberFormatter();
+        _nameField = new TextField("", "Ex: Parking beach 01");
+        _widthField = new TextField("", "0", validateInputs);
+        _heightField = new TextField("", "0", validateInputs);
+        _createButton = new Button("Create", SaveNewBeach);
     }
 
     public void Draw(Engine.Canvas canvas)
     {
         canvas.Clear();
-        uint canvasMaxWidth = 40;
-        uint canvasHeight = 28;
-        uint canvasWidth = (uint)Math.Min(canvasMaxWidth, canvas.Width);
+        const uint CanvasMaxWidth = 40;
+        const uint CanvasHeight = 28;
+        uint canvasWidth = (uint)Math.Min(CanvasMaxWidth, canvas.Width);
         var originX = (uint)(canvas.Width / 2 - canvasWidth / 2);
-        var originY = (uint)(canvas.Height / 2 - canvasHeight / 2);
+        var originY = (uint)(canvas.Height / 2 - CanvasHeight / 2);
         var selectedStyle = new Style(foregroundColor: Color.DodgerBlue);
         var defaultStyle = new Style();
         var createStyle = new Style(foregroundColor: Color.DarkTurquoise);
         var textStyle = new Style(foregroundColor: Color.CornflowerBlue);
         var errorStyle = new Style(foregroundColor: Color.Red);
 
-        canvas.DrawBox(originX, originY, canvasWidth, canvasHeight);
+        canvas.DrawBox(originX, originY, canvasWidth, CanvasHeight);
 
         string nameText = "Create a parking beach";
         canvas.Draw(nameText, originX + canvasWidth / 2, originY + 1, createStyle, Alignment.Center);
         // Name box
         canvas.Draw("Name", originX + 3, originY + 4, textStyle);
-        beachName.Draw(canvas, originX + 2, originY + 5, canvasWidth - 4, selectedField == 0 ? selectedStyle : defaultStyle);
+        _nameField.Draw(canvas, originX + 2, originY + 5, canvasWidth - 4, selectedField == 0 ? selectedStyle : defaultStyle);
         // Width box
         canvas.Draw("Width", originX + 3, originY + 9, textStyle);
-        beachWidth.Draw(canvas, originX + 2, originY + 10, canvasWidth - 4, selectedField == 1 ? selectedStyle : defaultStyle);
+        _widthField.Draw(canvas, originX + 2, originY + 10, canvasWidth - 4, selectedField == 1 ? selectedStyle : defaultStyle);
         // Height box
         canvas.Draw("Height", originX + 3, originY + 14, textStyle);
-        beachHeight.Draw(canvas, originX + 2, originY + 15, canvasWidth - 4, selectedField == 2 ? selectedStyle : defaultStyle);
+        _heightField.Draw(canvas, originX + 2, originY + 15, canvasWidth - 4, selectedField == 2 ? selectedStyle : defaultStyle);
         // Create button
-        createBeach.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + canvasHeight - 5, canvasWidth / 2, selectedField == 3 ? selectedStyle : defaultStyle);
+        _createButton.Draw(canvas, originX + canvasWidth / 2 - canvasWidth / 4, originY + CanvasHeight - 5, canvasWidth / 2, selectedField == 3 ? selectedStyle : defaultStyle);
 
         // Error message
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            canvas.Draw("ERROR:", originX + canvasWidth / 2, originY + canvasHeight - 8, errorStyle, Alignment.Center);
-            canvas.Draw(errorMessage, originX + canvasWidth / 2, originY + canvasHeight - 7, errorStyle, Alignment.Center);
+            canvas.Draw("ERROR:", originX + canvasWidth / 2, originY + CanvasHeight - 8, errorStyle, Alignment.Center);
+            canvas.Draw(errorMessage, originX + canvasWidth / 2, originY + CanvasHeight - 7, errorStyle, Alignment.Center);
         }
     }
 
     public void OnKeyPressed(ConsoleKeyInfo keyInfo)
     {
-        if (selectedField < amountOfFields - 1 && keyInfo.Key == ConsoleKey.DownArrow)
+        if (selectedField < AmountOfFields - 1 && keyInfo.Key == ConsoleKey.DownArrow)
         {
             selectedField++;
             return;
@@ -90,45 +89,52 @@ class CreateBeachScene : IScene
         switch (selectedField)
         {
             case 0:
-                beachName.ProcessKey(keyInfo);
+                _nameField.ProcessKey(keyInfo);
                 break;
             case 1:
-                beachWidth.ProcessKey(keyInfo);
+                _widthField.ProcessKey(keyInfo);
                 break;
             case 2:
-                beachHeight.ProcessKey(keyInfo);
+                _heightField.ProcessKey(keyInfo);
                 break;
             case 3:
-                createBeach.ProcessKey(keyInfo);
+                _createButton.ProcessKey(keyInfo);
                 break;
 
         }
     }
 
-    public void SaveNewBeach()
+    private void SaveNewBeach()
     {
-        if (!manager.ParkingBeaches.Exists(p => p.Name == beachName.Text))
+        if (!manager.ParkingBeaches.Exists(p => p.Name == _nameField.Text))
         {
-            if (!string.IsNullOrWhiteSpace(beachName.Text) && beachName.Text.Length < 31)
+            if (!string.IsNullOrWhiteSpace(_nameField.Text))
             {
-                if (uint.TryParse(beachWidth.Text, out uint w) && uint.TryParse(beachHeight.Text, out uint h) && w > 0 && h > 0)
+                if (_nameField.Text.Length < 31)
                 {
-                    manager.AddParkingBeach(beachName.Text, w, h);
-                    Engine.Instance?.UpdateScene(lastScene);
+                    if (uint.TryParse(_widthField.Text, out uint w) && uint.TryParse(_heightField.Text, out uint h) && w > 0 && h > 0)
+                    {
+                        manager.AddParkingBeach(_nameField.Text, w, h);
+                        Engine.Instance?.UpdateScene(lastScene);
+                    }
+                    else
+                    {
+                        errorMessage = "Width and height must not be zero.";
+                    }
                 }
                 else
                 {
-                    errorMessage = "Width and Height must not be zero";
+                    errorMessage = "Name can be at most 30 characters.";
                 }
             }
             else
             {
-                errorMessage = "Name is not valid";
+                errorMessage = "Name field must not be empty.";
             }
         }
         else
         {
-            errorMessage = "Name already exist!";
+            errorMessage = "There's already a parking beach with this name!";
         }
 
     }
