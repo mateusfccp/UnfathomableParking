@@ -3,6 +3,11 @@ namespace UnfathomableParking.Models;
 public class ParkingBeach
 {
     /// <summary>
+    /// The name of the parking beach.
+    /// </summary>
+    public string Name { get; set; }
+
+    /// <summary>
     /// The width of the parking beach.
     /// </summary>
     public uint Width { get; private set; }
@@ -53,7 +58,7 @@ public class ParkingBeach
     /// <summary>
     /// The revenue per hour of the parking Beach
     /// </summary>
-    public decimal RevenuePerHour { get; private set; }
+    public decimal RevenuePerHour { get; set; }
 
     private ParkingSlot?[,] _slots;
 
@@ -70,13 +75,18 @@ public class ParkingBeach
     /// <param name="width">The width of the parking beach.</param>
     /// <param name="height">The height of the parking beach.</param>
     /// <param name="revenuePerHour">The revenue per hour of the parking beach.</param>
-    public ParkingBeach(uint width, uint height, decimal revenuePerHour)
+    public ParkingBeach(string name, uint width, uint height, decimal revenuePerHour)
     {
         if (width == 0 || height == 0)
         {
             throw new ArgumentOutOfRangeException(nameof(width), nameof(height),
                 "The width and height must be greater than 0.");
         }
+        if (string.IsNullOrEmpty(name))
+        {
+            throw new ArgumentNullException(nameof(name), "The parking beach must have a non-empty name.");
+        }
+        Name = name;
 
         if (revenuePerHour <= 0)
         {

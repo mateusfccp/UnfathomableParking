@@ -1,9 +1,7 @@
 ﻿using UnfathomableParking.Interfaces;
+using UnfathomableParking.Models;
+using UnfathomableParking.Scenes;
 using UnfathomableParking.Services;
-
-var scene = new NoScene();
-var engine = new Engine(scene);
-engine.Start();
 
 internal sealed class NoScene : IScene
 {
