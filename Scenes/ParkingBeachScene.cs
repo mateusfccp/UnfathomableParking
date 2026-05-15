@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Text;
 using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
@@ -24,15 +25,16 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
 
         // Calculations
         const uint chunkSize = 8;
+        const int roadWidth = 3;
         var irregularBlocks = parkingBeach.Width % chunkSize;
         var leftBlock = irregularBlocks / 2;
 
         var verticalRoadsCount = 1 + parkingBeach.Width / chunkSize;
-        var width = 1 + parkingBeach.Width * 2 + verticalRoadsCount * 3;
+        var width = 1 + parkingBeach.Width * 2 + verticalRoadsCount * (1 + (uint)roadWidth);
 
         var horizontalRoadsCount = 1 + (parkingBeach.Height - 1) / 2;
-        var internalHeight = 2 + (parkingBeach.Height - 1) + (parkingBeach.Height - 1) / 2;
-        var height = internalHeight * 2 + (internalHeight - 1) / 3 + 2;
+        var boundariesCount = 1 + (parkingBeach.Height + 1) / 2;
+        var height = parkingBeach.Height * 2 + horizontalRoadsCount * roadWidth + boundariesCount;
 
         var position = new Point((int)(canvas.Width / 2 - width / 2), (int)(canvas.Height / 2 - height / 2));
 
@@ -42,6 +44,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         var currentRow = 0;
         var maximumRows = 1 + horizontalRoadsCount + parkingBeach.Height + horizontalRoadsCount;
         var endsWithRoad = maximumRows % 2 == 0;
+        var maximumColumns = 1 + verticalRoadsCount + parkingBeach.Width;
 
         var y = 0;
 
@@ -51,11 +54,9 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         while (currentRow < maximumRows)
         {
             var horizontalArea = y == height - 1 ? 0 : int.Abs((currentRow + 2) % 4 - 2);
-            // canvas.Draw($"{horizontalArea}", position.X - 2, position.Y + y);
 
             var currentColumn = 0;
             var x = 0;
-            var maximumColumns = 1 + verticalRoadsCount + parkingBeach.Width;
 
             while (currentColumn < maximumColumns)
             {
@@ -65,12 +66,10 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                 var isRegularArea = verticalArea > 1;
 
                 var isSlot = isLeftBlockArea || isRegularArea;
-                var isAfterRoad = verticalArea == 1;
+                var isAfterRoad = !isLeftBlockArea && verticalArea == 1;
                 var isBeforeRoad = x > 0 && verticalArea == 0;
                 var isCorner = x == 0 && y == 0 || x == 0 && y == height - 1 || x == width - 1 && y == 0 ||
                                x == width - 1 && y == height - 1;
-
-                // canvas.Draw($"{verticalArea}", position.X + x, (int)(position.Y + height + 1));
 
                 switch (horizontalArea)
                 {
@@ -109,11 +108,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                         canvas.Draw("│\n│", (uint)(position.X + x), (uint)(position.Y + y));
                         if (verticalArea > 0)
                         {
-                            if (CursorPosition.X == parkingSlotX && CursorPosition.Y == parkingSlotY)
-                            {
-                                canvas.DefaultStyle = new Style(backgroundColor: Color.White);
-                            }
-
                             if (x != width - 1 && parkingBeach[parkingSlotX, parkingSlotY] is { } currentSlot)
                             {
                                 canvas.Draw(
@@ -132,24 +126,20 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
                                 );
                             }
 
-                            if (CursorPosition.X == parkingSlotX && CursorPosition.Y == parkingSlotY)
-                            {
-                                canvas.DefaultStyle = new();
-                            }
-
                             parkingSlotX = parkingSlotX + 1;
                         }
 
                         break;
                 }
 
-                if (verticalArea == 0) x = x + 1;
+                if (verticalArea == 0) x = x + (roadWidth - 1);
                 x = x + 2;
                 currentColumn = currentColumn + 1;
             }
 
             if (horizontalArea == 0) y = y - 1;
-            y = y + 2;
+            if (horizontalArea == 2) y = y + roadWidth;
+            else y = y + 2;
             currentRow = currentRow + 1;
 
             if (horizontalArea == 1)
@@ -162,15 +152,101 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         // Infos
         if (SelectedSlot is { } slot)
         {
-            canvas.Draw($"Brand: {slot.Vehicle.Brand}", (uint)position.X + 1, (uint)position.Y - 3);
-            canvas.Draw($"Model: {slot.Vehicle.Model}", (uint)position.X + 1, (uint)position.Y - 2);
-            canvas.Draw($"License Plate: {slot.Vehicle.LicensePlate}", (uint)position.X + 1,
-                (uint)position.Y - 1);
+            var carDescription = $"{slot.Vehicle.Brand} {slot.Vehicle.Model}";
+            var licensePlate = $"{slot.Vehicle.LicensePlate[..3]}-{slot.Vehicle.LicensePlate[3..]}";
+            canvas.Draw(carDescription, (uint)position.X + 1, (uint)position.Y - 2);
+            canvas.Draw(licensePlate, (uint)position.X + 1, (uint)position.Y - 1);
+            var currentValue = slot.ComputeCurrentValue(parkingBeach.RevenuePerHour);
+            canvas.Draw("To pay: ", (uint)position.X, (uint)position.Y + height + 1);
+            canvas.Draw($"${currentValue:F2}", (uint)(position.X + "To pay: ".Length), (uint)position.Y + height + 1,
+                new Style(Color.Green));
+            var parkingDate = slot.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
+            canvas.Draw($"Parked at: {parkingDate}", (uint)position.X, (uint)position.Y + height + 2);
         }
         else
         {
-            canvas.Draw("No vehicle selected.", (uint)position.X + 1, (uint)position.Y - 3,
-                new Style(decoration: Decoration.Faint));
+            canvas.Draw(
+                "No vehicle selected.",
+                (uint)position.X + 1,
+                (uint)position.Y - 2,
+                new Style(decoration: Decoration.Faint)
+            );
+        }
+
+        canvas.Draw(
+            "Export Report (R)",
+            (uint)position.X,
+            (uint)position.Y + height,
+            new Style(decoration: Decoration.Bold)
+        );
+
+        // Post-processing: Highlight row and column
+        var activeSlotX = -1;
+        var activeSlotY = -1;
+        var simulationRow = 0;
+        var simulationY = 0;
+        var simulationSlotY = 0;
+
+        while (simulationRow < maximumRows)
+        {
+            var simulationHorizontalArea = simulationY == height - 1 ? 0 : Math.Abs((simulationRow + 2) % 4 - 2);
+            if (simulationHorizontalArea == 0) simulationY = simulationY - 1;
+
+            if (simulationHorizontalArea == 1 && simulationSlotY == CursorPosition.Y)
+            {
+                activeSlotY = simulationY;
+            }
+
+            if (simulationHorizontalArea == 2) simulationY = simulationY + roadWidth;
+            else simulationY = simulationY + 2;
+            if (simulationHorizontalArea == 1) simulationSlotY = simulationSlotY + 1;
+            simulationRow = simulationRow + 1;
+        }
+
+        var simulationColumn = 0;
+        var simulationX = 0;
+        var simulationSlotX = 0;
+        while (simulationColumn < maximumColumns)
+        {
+            var simulationVerticalArea = Math.Abs((int)(simulationColumn - leftBlock)) % (chunkSize + 1);
+            if (simulationVerticalArea > 0)
+            {
+                if (simulationSlotX == CursorPosition.X)
+                {
+                    activeSlotX = simulationX + 1;
+                }
+
+                simulationSlotX = simulationSlotX + 1;
+            }
+
+            if (simulationVerticalArea == 0) simulationX = simulationX + (roadWidth - 1);
+            simulationX = simulationX + 2;
+            simulationColumn = simulationColumn + 1;
+        }
+
+        var cursorColor = Color.FromArgb(76, 76, 76);
+
+        // Column highlight
+        if (activeSlotX != -1)
+        {
+            canvas.SetBackground((uint)(position.X + activeSlotX), (uint)position.Y, 1, height, cursorColor);
+        }
+
+        // Row highlight
+        if (activeSlotY != -1)
+        {
+            canvas.SetBackground((uint)position.X, (uint)(position.Y + activeSlotY), width, 2, cursorColor);
+        }
+
+        // Active cell highlight (2x1)
+        if (activeSlotX != -1 && activeSlotY != -1)
+        {
+            canvas.SetBackground(
+                (uint)(position.X + activeSlotX),
+                (uint)(position.Y + activeSlotY),
+                1, 2,
+                Color.FromArgb(140, 140, 140)
+            );
         }
     }
 
@@ -178,18 +254,6 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
     {
         switch (keyInfo.Key)
         {
-            case ConsoleKey.N:
-                parkingBeach.Resize(parkingBeach.Width, parkingBeach.Height + 1);
-                break;
-            case ConsoleKey.P:
-                parkingBeach.Resize(parkingBeach.Width, parkingBeach.Height - 1);
-                break;
-            case ConsoleKey.F:
-                parkingBeach.Resize(parkingBeach.Width + 1, parkingBeach.Height);
-                break;
-            case ConsoleKey.B:
-                parkingBeach.Resize(parkingBeach.Width - 1, parkingBeach.Height);
-                break;
             case ConsoleKey.UpArrow:
                 var y = (CursorPosition.Y - 1 + (int)parkingBeach.Height) % (int)parkingBeach.Height;
                 CursorPosition = CursorPosition with { Y = y };
@@ -209,6 +273,9 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
             case ConsoleKey.Enter:
                 SelectSlot();
                 break;
+            case ConsoleKey.R:
+                ExportReport();
+                break;
         }
     }
 
@@ -216,7 +283,25 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
     {
         if (SelectedSlot is { } slot)
         {
-            parkingBeach.UnparkVehicle((uint)CursorPosition.X, (uint)CursorPosition.Y);
+            var licensePlate = $"{slot.Vehicle.LicensePlate[..3]}-{slot.Vehicle.LicensePlate[3..]}";
+            Engine.Instance?.UpdateScene(
+                new ConfirmationScene(
+                    title: $"Unpark vehicle {licensePlate}?",
+                    onConfirm: () =>
+                    {
+                        parkingBeach.UnparkVehicle((uint)CursorPosition.X, (uint)CursorPosition.Y);
+                        Engine.Instance.UpdateScene(
+                            new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                        );
+                    },
+                    onCancel: () =>
+                    {
+                        Engine.Instance.UpdateScene(
+                            new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                        );
+                    }
+                )
+            );
         }
         else
         {
@@ -249,5 +334,55 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, uint cursorX = 0, uint
         var index = (int)(hash % (uint)colors.Count);
 
         return colors[index];
+    }
+
+    private void ExportReport()
+    {
+        var fileName = $"Parking_Beach_report {DateTime.Now:yyyyMMdd_HHmmss}.txt";
+        var report = new StringBuilder();
+        report.AppendLine("========*Parking Beach Name*========");
+        report.AppendLine($"Total Revenue: ${parkingBeach.TotalRevenue:F2}.");
+        report.AppendLine($"Occupied Spaces: {parkingBeach.OccupiedSlots}/{parkingBeach.TotalSlots}.");
+        report.AppendLine("Vehicles:");
+        var revenueToPay = 0m;
+        for (var x = 0; x < parkingBeach.Width; x++)
+        {
+            for (var y = 0; y < parkingBeach.Height; y++)
+            {
+                var currentSlot = parkingBeach[(uint)x, (uint)y];
+                if (currentSlot != null)
+                {
+                    var currentVehicle = currentSlot.Value.Vehicle;
+                    var vehicleDescription =
+                        $"{currentVehicle.Brand} {currentVehicle.Model} ({currentVehicle.LicensePlate})";
+                    var parkedAt = currentSlot.Value.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
+                    var toPay = currentSlot.Value.ComputeCurrentValue(parkingBeach.RevenuePerHour);
+                    report.AppendLine($"- {vehicleDescription} -> Parked at {parkedAt} | To pay: {toPay:F2}");
+                    revenueToPay += toPay;
+                }
+            }
+        }
+
+        report.AppendLine($"Total Revenue to pay: ${revenueToPay:F2}");
+
+        File.WriteAllText(fileName, report.ToString());
+
+        Engine.Instance?.UpdateScene(
+            new ConfirmationScene(
+                title: $"Your report has been successfully exported as {fileName}\ndo you like it?",
+                onConfirm: () =>
+                {
+                    Engine.Instance.UpdateScene(
+                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                    );
+                },
+                onCancel: () =>
+                {
+                    Engine.Instance.UpdateScene(
+                        new ParkingBeachScene(parkingBeach, (uint)CursorPosition.X, (uint)CursorPosition.Y)
+                    );
+                }
+            )
+        );
     }
 }

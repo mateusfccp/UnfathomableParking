@@ -1,4 +1,5 @@
 using System.Drawing;
+using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
 using UnfathomableParking.Services;
