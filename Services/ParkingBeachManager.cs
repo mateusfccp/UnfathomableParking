@@ -10,7 +10,7 @@ public class ParkingBeachManager
     /// <summary>
     /// The list of parking beaches.
     /// </summary>
-    public List<ParkingBeach> ParkingBeaches => [.._parkingBeaches];
+    public List<ParkingBeach> ParkingBeaches => [.. _parkingBeaches];
 
     private readonly List<ParkingBeach> _parkingBeaches = [];
 
@@ -19,10 +19,9 @@ public class ParkingBeachManager
     /// </summary>
     /// <param name="width">The width of the new parking beach.</param>
     /// <param name="height">The height of the new parking beach.</param>
-    /// <param name="costPerHour">The cost per hour to park on the beach.</param>
-    public void AddParkingBeach(uint width, uint height, decimal costPerHour)
+    public void AddParkingBeach(string name, uint width, uint height, decimal costPerHour)
     {
-        var parkingBeach = new ParkingBeach(width, height, costPerHour);
+        var parkingBeach = new ParkingBeach(name, width, height, costPerHour);
         _parkingBeaches.Add(parkingBeach);
     }
 
@@ -32,17 +31,28 @@ public class ParkingBeachManager
     /// <param name="index">The index of the parking beach.</param>
     /// <param name="width">The new width of the parking beach.</param>
     /// <param name="height">The new height of the parking beach.</param>
-    public void ResizeParkingBeach(int index, uint width, uint height)
+    public void EditParkingBeach(string oldName, string newName, uint width, uint height, decimal revenue)
     {
-        _parkingBeaches[index].Resize(width, height);
+        var editedBeach = _parkingBeaches.FirstOrDefault(a => a.Name == oldName);
+        if (editedBeach != null)
+        {
+            editedBeach.Name = newName;
+            editedBeach.Resize(width, height);
+            editedBeach.RevenuePerHour = revenue;
+        }
+
     }
 
     /// <summary>
     /// Remove the parking beach at the given index.
     /// </summary>
     /// <param name="index">The index of the parking beach to remove.</param>
-    public void RemoveParkingBeach(int index)
+    public void RemoveParkingBeach(string name)
     {
-        _parkingBeaches.RemoveAt(index);
+        var removedBeach = _parkingBeaches.FirstOrDefault(a => a.Name == name);
+        if (removedBeach != null)
+        {
+            _parkingBeaches.Remove(removedBeach);
+        }
     }
 }
