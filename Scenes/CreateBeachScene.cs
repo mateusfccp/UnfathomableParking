@@ -28,7 +28,7 @@ class CreateBeachScene : IScene
         NumberFormatter validateInputs = new NumberFormatter();
         RevenueFormatter validateRevenue = new RevenueFormatter();
         _nameField = new TextField("", "Ex: Parking beach 01");
-        _revenueField = new TextField("", "Ex: 15.50", validateRevenue);
+        _revenueField = new TextField("", "Ex: 15,50", validateRevenue);
         _widthField = new TextField("", "0", validateInputs);
         _heightField = new TextField("", "0", validateInputs);
         _createButton = new Button("Create", SaveNewBeach);
@@ -124,7 +124,7 @@ class CreateBeachScene : IScene
                 {
                     if (!string.IsNullOrWhiteSpace(_revenueField.Text))
                     {
-                        if (uint.TryParse(_widthField.Text, out uint w) && uint.TryParse(_heightField.Text, out uint h) && w > 0 && h > 0)
+                        if (uint.TryParse(_widthField.Text, out uint w) && uint.TryParse(_heightField.Text, out uint h) && w > 0 && h > 0 && w <= 100 && h <= 100)
                         {
                             decimal revenue = decimal.TryParse(_revenueField.Text, out var result) ? result : 0;
                             manager.AddParkingBeach(_nameField.Text, w, h, revenue);
@@ -132,7 +132,7 @@ class CreateBeachScene : IScene
                         }
                         else
                         {
-                            errorMessage = "Width and height must not be zero.";
+                            errorMessage = "Size must be 1-100";
                         }
                     }
                     else
@@ -153,7 +153,7 @@ class CreateBeachScene : IScene
         }
         else
         {
-            errorMessage = "There's already a parking beach with this name!";
+            errorMessage = "Beach with this name already exists!";
         }
 
     }
@@ -163,6 +163,7 @@ class CreateBeachScene : IScene
         {
             if (string.IsNullOrEmpty(next)) return next;
             if (next.Length < current.Length) return next;
+            if (next.Length > 3) return current;
             if (char.IsDigit(next.Last())) return next;
             return current;
         }
@@ -173,7 +174,7 @@ class CreateBeachScene : IScene
         {
             if (string.IsNullOrEmpty(next)) return next;
             if (next.Length < current.Length) return next;
-
+            if (next.Length > 10) return current;
             char lastChar = next.Last();
             if (char.IsDigit(lastChar)) return next;
 

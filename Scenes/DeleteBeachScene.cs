@@ -86,6 +86,11 @@ class DeleteBeachScene : IScene
         switch (selectedField)
         {
             case 0 when keyInfo.Key == ConsoleKey.Enter:
+                if (manager.ParkingBeaches.Count == 0)
+                {
+                    errorMessage = "No beaches available.";
+                    break;
+                }
                 var initialIndex = currentBeach == null ? 0 : (uint)manager.ParkingBeaches.IndexOf(currentBeach);
                 Instance?.UpdateScene(new ListSelectionScene<ParkingBeach>(manager.ParkingBeaches, initialIndex, onSelect: OnSelect, formatter: beach => beach.Name));
                 break;
