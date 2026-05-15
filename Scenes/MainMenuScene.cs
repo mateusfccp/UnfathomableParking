@@ -139,6 +139,13 @@ public class MainMenuScene : IScene
     /// <param name="keyInfo"></param>
     public void OnKeyPressed(ConsoleKeyInfo keyInfo)
     {
+        // Ignore control and alt
+        if (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control) ||
+        keyInfo.Modifiers.HasFlag(ConsoleModifiers.Alt))
+        {
+            return;
+        }
+
         // Head Index clamp
         if (_parkingBeaches.Count >= 4) _headIndex = Math.Clamp(_headIndex, 0, _parkingBeaches.Count - 4);
         else _headIndex = 0;
