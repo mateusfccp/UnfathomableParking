@@ -171,6 +171,9 @@ public class MainMenuScene : IScene
                         break;
                 }
                 break;
+            case ConsoleKey.Escape:
+                Engine.Instance.Stop();
+                break;
 
             // ACA TENES QUE HACER TU PARTE JOAQUIN!!!!!!!!!!!!
             case ConsoleKey.C:

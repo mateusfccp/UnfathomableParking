@@ -177,7 +177,7 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
             "Export Report (R)",
             (uint)position.X,
             (uint)position.Y + height,
-            new Style(decoration: Decoration.Bold)
+            new Style(decoration: Decoration.Bold | Decoration.Italic)
         );
 
         // Post-processing: Highlight row and column
@@ -343,11 +343,26 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
     {
         var fileName = $"Parking_Beach_report {DateTime.Now:yyyyMMdd_HHmmss}.txt";
         var report = new StringBuilder();
-        report.AppendLine("========*Parking Beach Name*========");
+        //Title
+report.Append(
+@" /$$$$$$$                                            /$$    
+| $$__  $$                                          | $$    
+| $$  \ $$  /$$$$$$   /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$  
+| $$$$$$$/ /$$__  $$ /$$__  $$ /$$__  $$ /$$__  $$|_  $$_/  
+| $$__  $$| $$$$$$$$| $$  \ $$| $$  \ $$| $$  \__/  | $$    
+| $$  \ $$| $$_____/| $$  | $$| $$  | $$| $$        | $$ /$$
+| $$  | $$|  $$$$$$$| $$$$$$$/|  $$$$$$/| $$        |  $$$$/
+|__/  |__/ \_______/| $$____/  \______/ |__/         \___/  
+                    | $$                                    
+                    | $$                                    
+                    |__/                                    
+");
+        //Data
+        report.AppendLine($"Parking Beach: {parkingBeach.Name}.");
         report.AppendLine($"Total Revenue: ${parkingBeach.TotalRevenue:F2}.");
         report.AppendLine($"Occupied Spaces: {parkingBeach.OccupiedSlots}/{parkingBeach.TotalSlots}.");
-        report.AppendLine("Vehicles:");
-        var revenueToPay = 0m;
+        report.AppendLine("\nVehicles:");
+        var revenueToGet = 0m;
         for (var x = 0; x < parkingBeach.Width; x++)
         {
             for (var y = 0; y < parkingBeach.Height; y++)
@@ -358,15 +373,15 @@ public class ParkingBeachScene(ParkingBeach parkingBeach, ParkingBeachManager be
                     var currentVehicle = currentSlot.Value.Vehicle;
                     var vehicleDescription =
                         $"{currentVehicle.Brand} {currentVehicle.Model} ({currentVehicle.LicensePlate})";
-                    var parkedAt = currentSlot.Value.ParkedAt.ToString("dddd, dd MMMM yyyy HH:mm");
+                    var parkedAt = currentSlot.Value.ParkedAt.ToString("dd/MM/yyyy HH:mm");
                     var toPay = currentSlot.Value.ComputeCurrentValue(parkingBeach.RevenuePerHour);
-                    report.AppendLine($"- {vehicleDescription} -> Parked at {parkedAt} | To pay: {toPay:F2}");
-                    revenueToPay += toPay;
+                    report.AppendLine($"- {vehicleDescription} -> Parked at {parkedAt} | To pay: ${toPay:F2}");
+                    revenueToGet += toPay;
                 }
             }
         }
 
-        report.AppendLine($"Total Revenue to pay: ${revenueToPay:F2}");
+        report.AppendLine($"\nTotal Revenue to get: ${revenueToGet:F2}");
 
         File.WriteAllText(fileName, report.ToString());
 
