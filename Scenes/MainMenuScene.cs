@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Drawing;
 using UnfathomableParking.Enums;
 using UnfathomableParking.Interfaces;
@@ -181,7 +180,6 @@ public class MainMenuScene : IScene
                 }
                 break;
 
-            // ACA TENES QUE HACER TU PARTE JOAQUIN!!!!!!!!!!!!
             case ConsoleKey.C:
                 var createScene = new CreateBeachScene(_beachManager, this);
                 Instance?.UpdateScene(createScene);
@@ -194,7 +192,6 @@ public class MainMenuScene : IScene
                 var deleteScene = new DeleteBeachScene(_beachManager, this);
                 Instance?.UpdateScene(deleteScene);
                 break;
-                // Yo recomiendo que hagas una variable Scene? newScene = TuScene y despues haces el update(newScene)
 
         }
 
