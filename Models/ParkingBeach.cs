@@ -94,6 +94,12 @@ public class ParkingBeach
                 "The revenue per hour cannot be 0 or a negative number.");
         }
 
+        if (revenuePerHour <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(revenuePerHour),
+                "The revenue per hour cannot be 0 or a negative number.");
+        }
+
         Width = width;
         Height = height;
         RevenuePerHour = revenuePerHour;
