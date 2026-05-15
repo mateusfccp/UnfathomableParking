@@ -8,7 +8,7 @@ using static UnfathomableParking.Services.Engine;
 namespace UnfathomableParking.Scenes;
 
 /// <summary>
-/// A class that contains all of the Main Menu UI and logic
+/// A class that contains all of the Main Menu UI and logic 
 /// </summary>
 public class MainMenuScene : IScene
 {
