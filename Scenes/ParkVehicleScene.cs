@@ -12,12 +12,14 @@ namespace UnfathomableParking.Scenes;
 /// </summary>
 public class ParkVehicleScene : IScene
 {
-    private const int FocusableCount = 4;
+    private const int FocusableCount = 5;
     private int _selectedFieldIndex;
     private readonly TextField _modelTextField;
     private readonly TextField _licensePlateTextField;
     private string LicensePlateNormalized => _licensePlateTextField.Text.Replace("-", "");
     private readonly Button _parkButton;
+    private readonly Button _cancelButton;
+    private string? _errorMessage;
 
     private bool _isFormValid;
     private readonly ParkingBeach _parkingBeach;
@@ -45,9 +47,10 @@ public class ParkVehicleScene : IScene
         _x = x;
         _y = y;
         _selectedBrand = selectedBrand;
-        _modelTextField = new TextField(model ?? "");
+        _modelTextField = new TextField(model ?? "", hintText: "E.g. Corolla");
         _licensePlateTextField = new TextField(licensePlate ?? "", "Format: AAA-000", new LicensePlateFormatter());
         _parkButton = new Button("Park vehicle", SubmitForm);
+        _cancelButton = new Button("Cancel", CancelForm);
     }
 
     public void Draw(Canvas canvas)
@@ -55,7 +58,7 @@ public class ParkVehicleScene : IScene
         canvas.Clear();
 
         const uint maximumWidth = 40;
-        const int height = 18 + 4;
+        const int height = 24;
 
         var width = Math.Min(maximumWidth, canvas.Width);
         var originX = (uint)(canvas.Width / 2 - width / 2);
@@ -64,8 +67,10 @@ public class ParkVehicleScene : IScene
         var defaultStyle = new Style();
         var selectedStyle = new Style(foregroundColor: Color.DodgerBlue);
 
+        // Box
         canvas.DrawBox(originX, originY, (uint)width, height);
 
+        // Brand selector
         canvas.Draw("Brand: ", originX + 2, originY + 2);
         canvas.DrawBox(originX + 1, originY + 3, (uint)width - 2, 3,
             _selectedFieldIndex == 0 ? selectedStyle : defaultStyle);
@@ -73,25 +78,53 @@ public class ParkVehicleScene : IScene
         canvas.Draw(_selectedBrand?.ToString() ?? "Select brand", originX + 2, originY + 4, brandStyle);
         canvas.Draw("▼", (uint)(originX + 2 + width - 5), originY + 4);
 
+        // Model field
         canvas.Draw("Model: ", originX + 2, originY + 7);
         _modelTextField.Draw(canvas, originX + 1, originY + 8, (uint)width - 2,
             _selectedFieldIndex == 1 ? selectedStyle : defaultStyle);
 
+        // License plate field
         canvas.Draw("License plate: ", originX + 2, originY + 12);
         _licensePlateTextField.Draw(canvas, originX + 1, originY + 13, (uint)width - 2,
             _selectedFieldIndex == 2 ? selectedStyle : defaultStyle);
 
+        // Buttons
         var buttonWidth = (uint)width / 2;
-        _parkButton.Draw(canvas, originX + (uint)width / 2 - buttonWidth / 2, originY + height - 4, buttonWidth,
+        _parkButton.Draw(canvas, originX + (uint)width / 2 - buttonWidth / 2, originY + height - 7, buttonWidth,
             _selectedFieldIndex == 3 ? selectedStyle : defaultStyle);
+        _cancelButton.Draw(canvas, originX + (uint)width / 2 - buttonWidth / 2, originY + height - 4, buttonWidth,
+            _selectedFieldIndex == 4 ? selectedStyle : defaultStyle);
+
+        // Error message
+        if (_errorMessage is { } errorMessage)
+        {
+            canvas.Draw(
+                errorMessage,
+                (uint)(originX + width / 2),
+                originY + height + 1,
+                new Style(Color.Crimson),
+                Alignment.Center
+            );
+        }
+
+        // Title
+        canvas.Draw(
+            "Park Vehicle",
+            originX + (uint)width / 2,
+            originY - 2,
+            new Style(decoration: Decoration.Bold),
+            Alignment.Center
+        );
     }
 
     public void OnKeyPressed(ConsoleKeyInfo keyInfo)
     {
+        _errorMessage = null;
+
         _selectedFieldIndex = keyInfo.Key switch
         {
-            ConsoleKey.UpArrow => Math.Max(0, _selectedFieldIndex - 1),
-            ConsoleKey.DownArrow => Math.Min(_selectedFieldIndex + 1, FocusableCount - 1),
+            ConsoleKey.UpArrow => (_selectedFieldIndex - 1 + FocusableCount) % FocusableCount,
+            ConsoleKey.DownArrow => (_selectedFieldIndex + 1) % FocusableCount,
             _ => _selectedFieldIndex
         };
 
@@ -99,8 +132,13 @@ public class ParkVehicleScene : IScene
         {
             case 0 when keyInfo.Key == ConsoleKey.Enter:
                 var initialIndex = _selectedBrand == null ? 0 : (uint)_selectedBrand;
+                var nextScene = new EnumSelectionScene<VehicleBrand>(
+                    initialIndex,
+                    onSelect: OnSelect,
+                    title: "Select the vehicle brand"
+                );
 
-                Instance?.UpdateScene(new EnumSelectionScene<VehicleBrand>(initialIndex, onSelect: OnSelect));
+                Instance?.UpdateScene(nextScene);
                 break;
             case 1:
                 _modelTextField.ProcessKey(keyInfo);
@@ -111,9 +149,11 @@ public class ParkVehicleScene : IScene
             case 3:
                 _parkButton.ProcessKey(keyInfo);
                 break;
+            case 4:
+                _cancelButton.ProcessKey(keyInfo);
+                break;
         }
 
-        ValidateForm();
         return;
 
         void OnSelect(VehicleBrand brand)
@@ -133,9 +173,27 @@ public class ParkVehicleScene : IScene
 
     private void SubmitForm()
     {
-        if (!_isFormValid) return;
-        _parkingBeach.ParkVehicle(new Vehicle(_selectedBrand!.Value, _modelTextField.Text, LicensePlateNormalized),
-            _x, _y);
+        ValidateForm();
+
+        if (!_isFormValid)
+        {
+            _errorMessage = "Please fill in all fields with valid values.";
+            return;
+        }
+
+        if (_parkingBeach.IsParked(LicensePlateNormalized))
+        {
+            _errorMessage = "Vehicle with this license plate is already parked.";
+            return;
+        }
+
+        var newVehicle = new Vehicle(_selectedBrand!.Value, _modelTextField.Text, LicensePlateNormalized);
+        _parkingBeach.ParkVehicle(newVehicle, _x, _y);
+        Instance?.UpdateScene(new ParkingBeachScene(_parkingBeach, _x, _y));
+    }
+
+    private void CancelForm()
+    {
         Instance?.UpdateScene(new ParkingBeachScene(_parkingBeach, _x, _y));
     }
 

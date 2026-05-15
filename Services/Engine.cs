@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Text;
 using UnfathomableParking.Interfaces;
 using UnfathomableParking.Models;
@@ -87,7 +88,11 @@ public class Engine
             var canvas = new Canvas(_width, _height);
             var keyInfo = ProcessInput();
 
-            _scene.OnKeyPressed(keyInfo);
+            if (keyInfo is not null)
+            {
+                _scene.OnKeyPressed(keyInfo.Value);
+            }
+
             _scene.Draw(canvas);
 
             _nextBuffer = canvas.Buffer;
@@ -106,16 +111,14 @@ public class Engine
         }
     }
 
-    private static ConsoleKeyInfo ProcessInput()
+    private static ConsoleKeyInfo? ProcessInput()
     {
         if (Console.KeyAvailable)
         {
             return Console.ReadKey(intercept: true);
         }
-        else
-        {
-            return default;
-        }
+
+        return null;
     }
 
     private void DrawBuffer()
@@ -253,9 +256,32 @@ public class Engine
         }
 
         /// <summary>
+        /// Applies a background color to a specific rectangular region in the canvas.
+        /// </summary>
+        /// <param name="x">The X position of the region.</param>
+        /// <param name="y">The Y position of the region.</param>
+        /// <param name="width">The width of the region.</param>
+        /// <param name="height">The height of the region.</param>
+        /// <param name="backgroundColor">The background color to apply.</param>
+        public void SetBackground(uint x, uint y, uint width, uint height, Color backgroundColor)
+        {
+            for (var i = x; i < x + width; i++)
+            {
+                for (var j = y; j < y + height; j++)
+                {
+                    if (i < Width && j < Height)
+                    {
+                        var cell = Buffer[i, j];
+                        Buffer[i, j] = new Cell(cell.Character, cell.Style with { BackgroundColor = backgroundColor });
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// The buffer that is being drawn to.
         /// </summary>
-        public Cell[,] Buffer { get; }
+        internal Cell[,] Buffer { get; }
 
         /// <summary>
         /// The width of the canvas.
